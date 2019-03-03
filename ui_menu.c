@@ -4,18 +4,7 @@
 #include<ctype.h>
 #include<conio.h>
 #include "ui_menu.h"
-
-//structure to deal with employee data in an organized way
-struct employeeData
-{
-	char name[1000];
-	char id[100];
-	char position[1000];
-	char joiningDate[1000];
-	char resigningDate[1000];
-	char status[100];	
-	char salary[100];
-};
+#include "file_handling.h"
 
 /*
 	*local functions
@@ -110,7 +99,7 @@ int is_valid_date(char dateStr[])
 		return 0;
 	}
 	
-	//if passes all condiiton successfully, the date is valid
+	//if all condition passed successfully, the date is valid
 	return 1;
 }
 
@@ -210,8 +199,22 @@ void view_employee_list()
 	//clear the previous output on the screen first
 	system("cls");
 	
-	printf("feature coming soon. Press anykey to go back to main menu");
-	getche();	
+	int userViewResult = read_and_show_from_file("records.bin");
+	
+	if(userViewResult == 1)
+	{
+		//user saw all data until end of file
+		printf("\nYou have reached end of file. Press any key to go back to main menu.");
+		getch();
+	}
+	else if(userViewResult == 2)
+	{
+		//no file was found 
+		show_error_message("No data available.");
+	}
+	//else if userViewResult = 3, 
+	//then, user wants to return to the main menu directly
+	//and no action needs to be taken
 }
 
 void add_new_employee()
@@ -236,7 +239,7 @@ void add_new_employee()
 		printf("\tEmployee position: ");
 		if(!take_string_input(employee.position)) break;
 		
-		while(continueAddingEmployee)
+		while(continueAddingEmployee)//loops until user enter valid date
 		{
 			printf("\tEmployee joining date(dd/mm/yyyy): ");
 			if(!take_date_input(employee.joiningDate))
@@ -327,8 +330,14 @@ void add_new_employee()
 		//confirm before saving the employee information
 		if(continueAddingEmployee && confirm_user_decision("add_employee"))
 		{
-			//save_employee_data(&employee)
-			printf("\tEmployee information is successfully saved.\n\n");
+			if(save_to_file(employee, "records.bin"))
+			{
+				printf("\tEmployee information is successfully saved.\n\n");
+			}
+			else
+			{
+				show_error_message("The employee data could not be saved.");
+			}
 		}
 
 		//prompt user to choose if the user wants to add another employee data
@@ -441,6 +450,39 @@ int confirm_user_decision(char confirmFor[])
 		getche();
 		return 0;
 	}	
+}
+
+int show_employee_data(struct employeeData employee, int employeeNum)
+{
+	//we want to show no more than five employee data at a time
+	//so we will clear the screen after every five employee data is shown
+	if(employeeNum % 5 == 1)
+	{
+		system("cls");//this will clear the screen 
+	}
+	
+	printf("Employee Number : %d\n", employeeNum);
+	printf("\tName          : %s\n", employee.name);
+	printf("\tID            : %s\n", employee.id);
+	printf("\tPosition      : %s\n", employee.position);
+	printf("\tJoining Date  : %s\n", employee.joiningDate);
+	printf("\tStatus        : %s\n", employee.status);
+	printf("\tResigning Date: %s\n", employee.resigningDate);
+	printf("\tSalary        : %s\n", employee.salary);
+	printf("\n");
+	
+	if(employeeNum % 5 == 0)
+	{
+		char input;
+		
+		printf("press any key to load more or [ctrl] + [z] to go back to main manu.");
+		if(!take_char_input(&input))
+		{
+			return 0;
+		}
+	}
+	
+	return 1;
 }
 
 void show_error_message(char message[])
