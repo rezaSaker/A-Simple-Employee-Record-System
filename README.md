@@ -1,26 +1,25 @@
 # A Simple Employee Record System
-___:
+___
 
-> A console application that allows users to keep and manage employee record
+A console application that allows users to keep and manage employee record
 
-___:
+___
 
-> currently available feature
+currently available feature
 ...
->>> 1. Add new employee record
->>> 2. View current employee record
-...
-
-___:
->>features coming soon
-...
->>> * Edit employee record
->>> * Delete employee record
->>> * Search employee record
->>> * Auto record backup
+1. Add new employee record2. View current employee record
 ...
 
-___:
+___
+features coming soon
+...
+* Edit employee record
+* Delete employee record
+* Search employee record
+* Auto record backup
+...
+
+___
 
 
 
