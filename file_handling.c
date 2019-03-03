@@ -45,7 +45,7 @@ int read_and_show_from_file(char fileName[])
 	
 	if(file == NULL)
 	{
-		return 2;//this will show eror message via ui_menu.c 
+		return 2;//returning 2 will show eror message via ui_menu.c 
 	}
 	else
 	{
@@ -55,12 +55,12 @@ int read_and_show_from_file(char fileName[])
 			//return 0, if user doesn't want to continue
 			if(!show_employee_data(employee, ++employeeNum))
 			{
-				return 3;//this will close the loop and directly take the user to main menu
+				return 3;//returning 3 will directly take the user to main menu
 			}
 		}
 		fclose(file);
 		
-		return 1;//this will print success message via ui_menu.c file
+		return 1;//returning 1 will print success message via ui_menu.c
 	}
 }
 
