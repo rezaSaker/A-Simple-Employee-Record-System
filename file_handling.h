@@ -4,13 +4,13 @@
 //structure to deal with employee data in an organized wa
 struct employeeData
 {
-	char name[1000];
-	char id[100];
-	char position[1000];
-	char joiningDate[1000];
-	char resigningDate[1000];
-	char status[100];	
-	char salary[100];
+	char name[1001];
+	char id[1001];
+	char position[1001];
+	char joiningDate[1001];
+	char resigningDate[1001];
+	char status[1001];	
+	char salary[1001];
 };
 
 //function prototypes
