@@ -12,16 +12,11 @@ int save_to_file(struct employeeData employee, char fileName[])
 {
 	FILE *file;
 	
-	file = fopen(fileName, "rb+");
+	file = fopen(fileName, "ab");
 	
 	if(file == NULL)
 	{
-		file = fopen(fileName, "wb+");
-		
-		if(file == NULL)
-		{
-			return 0;
-		}
+		return 0;
 	}
 	else
 	{
@@ -41,11 +36,11 @@ int read_and_show_from_file(char fileName[])
 	
 	FILE *file;
 	
-	file = fopen(fileName, "rb+");
+	file = fopen(fileName, "rb");
 	
 	if(file == NULL)
 	{
-		return 2;//returning 2 will show eror message via ui_menu.c 
+		return 2;//returning 2 will show error message via ui_menu.c 
 	}
 	else
 	{
