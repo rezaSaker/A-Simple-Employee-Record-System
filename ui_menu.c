@@ -13,10 +13,25 @@
 */
 int take_string_input(char *input)
 {
-	scanf(" %[^\n]s", input);
+	int i = 0;//only used for looping
+	
+	//the highest accepted length for input string would be 1000
+	//we will take input character by character beacuse it will prevent...
+	//error that may occur if user enters a string of length greater than the array size
+	for(i = 0; i < 1000; i++)
+	{
+		scanf("%c", &input[i]);
+		
+		//if user hits enter, break the loop
+		if(input[i] == 10)
+		{
+			break;
+		}
+	}
+	input[i] = '\0'; //null char at the end will make it a full string
 	
 	//if user types --out it takes him to main menu instatntly  
-	if(strcmp(input, "--out") == 0)
+	if(strcmp(input, "--mm") == 0)
 	{
 		return 0;
 	}
