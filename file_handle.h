@@ -1,5 +1,5 @@
-#ifndef FILE_HANDLING_H
-#define FILE_HANDLING_H
+#ifndef FILE_HANDLE_H
+#define FILE_HANDLE_H
 
 //structure to deal with employee data in an organized wa
 struct employeeData

@@ -1,7 +1,7 @@
-#include "file_handling.h"
+#include "file_handle.h"
 
-#ifndef USER_DEF_FUNCS_H
-#define USER_DEF_FUNCS_H
+#ifndef UI_HANDLE_H
+#define UI_HANDLE_H
 
 //function prototypes
 char on_main_menu();
