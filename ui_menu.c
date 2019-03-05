@@ -3,6 +3,7 @@
 #include<stdlib.h>
 #include<ctype.h>
 #include<conio.h>
+#include<time.h>
 #include "ui_menu.h"
 #include "file_handling.h"
 
@@ -64,22 +65,44 @@ int is_leap_year(int year)
 
 int is_valid_date(char dateStr[])
 {	
-	//we know the argument passed to this function
-	//is in dd/mm/yyyy format 
-	//and each character is a digit except '/' char
-	//because we check it before passing it to this function
-	
 	int i = 0;//this is only used for loop
-	int day, month, year;
+	int day, month, year, currentYear;
 	
-	//parse the argument dateStr into day, month and year
+	//first check if the date is in dd/mm/yyyy for
+	if(dateStr[2] != '/' || dateStr[5] != '/' || strlen(dateStr) != 10)
+	{
+		return 0;
+	}
+	
+	//now check if the argument passed conatins any char other than digit
+	for(i = 0; i < 10; i++)
+	{
+		if(i != 2 && i != 5)//char in index 3 and 5 is '/'
+		{
+			if(!isdigit(dateStr[i]))
+			{
+				return 0;
+			}
+		}
+	}
+	//split the argument dateStr into day, month and year and convert to equivalent integer
 	day = (to_int(dateStr[0]) * 10) + to_int(dateStr[1]);
 	month = (to_int(dateStr[3]) * 10) + to_int(dateStr[4]);
 	year = (to_int(dateStr[6]) * 1000) + (to_int(dateStr[7]) * 100)
 			+ (to_int(dateStr[8]) * 10) + to_int(dateStr[9]);
-	
+			
+	//get current year
+	char currentYearStr[5];
+	time_t timer;
+	struct tm* time_info;
+	time(&timer);
+	time_info = localtime(&timer);
+	strftime(currentYearStr, 5, "%Y", time_info);
+	currentYear = (to_int(currentYearStr[0]) * 1000) + (to_int(currentYearStr[1]) * 100)
+			+ (to_int(currentYearStr[2]) * 10) + to_int(currentYearStr[3]);
+
 	//check if the date is invalid
-	if(month > 12 || month < 1 || day > 31 || day < 1)
+	if(year > currentYear || month > 12 || month < 1 || day > 31 || day < 1)
 	{
 		return 0;
 	}
@@ -100,47 +123,6 @@ int is_valid_date(char dateStr[])
 	}
 	
 	//if all condition passed successfully, the date is valid
-	return 1;
-}
-
-int take_date_input(char *date)
-{
-	int i;//used only for loop
-	int j = 0;//used as index of date char array
-	char input;
-	
-	for(i = 0; i < 8; i++)
-	{
-		if(!take_char_input(&input))
-		{
-			return 0;
-		}
-		
-		//check if the value is digit, only digit is valid input
-		if(isdigit(input))
-		{
-			printf("%c", input);
-			date[j++] = input;
-			
-			//print '/' sign after every two digits to show format like dd/mm/yyyy
-			if(i % 2 == 1 && i < 5)
-			{
-				printf("/");
-				date[j++] = '/';
-			}
-		}
-		else
-		{
-			//decrease i by 1 so that it loops one more time
-			i--;
-		}
-	}
-	
-	//null char at the end of date array will make it a full string
-	date[j] = '\0';
-	
-	printf("\n");
-	
 	return 1;
 }
 
@@ -172,7 +154,7 @@ int is_convertable_to_double(char str[])
 }
 
 /*
-	function definitions for ui_menu.h header filelength
+	function definitions for ui_menu.h header file
 */
 
 char on_main_menu()
@@ -242,19 +224,24 @@ void add_new_employee()
 		while(continueAddingEmployee)//loops until user enter valid date
 		{
 			printf("\tEmployee joining date(dd/mm/yyyy): ");
-			if(!take_date_input(employee.joiningDate))
+			if(!take_string_input(employee.joiningDate))
 			{
+				//will break current loop and take the user directly to the main menu
 				continueAddingEmployee = 0;
-				break;
-			}
-			
-			if(is_valid_date(employee.joiningDate))
-			{
 				break;
 			}
 			else
 			{
-				printf("Alert: The date is not valid! Please try again\n");
+				if(is_valid_date(employee.joiningDate))
+				{
+					//will break this loop and continue to take next input
+					break;
+				}
+				else
+				{
+					//will require the user to enter date again
+					printf("Alert: The date is not valid! Please try again\n");
+				}
 			}
 		}
 		
@@ -292,38 +279,52 @@ void add_new_employee()
 					while(continueAddingEmployee)//loops until user enters valid input
 					{
 						printf("\tEmployee resgining date(dd/mm/yyyy): ");
-						if(!take_date_input(employee.resigningDate))
+						if(!take_string_input(employee.resigningDate))
 						{
+							//will break the loop and take the user directly to the main menu
 							continueAddingEmployee = 0;
-							break;
-						}
-						
-						if(is_valid_date(employee.resigningDate))
-						{
 							break;
 						}
 						else
 						{
-							printf("Alert: The date is not valid! Please try again\n");
+							if(is_valid_date(employee.resigningDate))
+							{
+								//break the loop and continue to take next input
+								break;
+							}
+							else
+							{
+								//will require the user to enter date again
+								printf("Alert: The date is not valid! Please try again\n");
+							}
 						}
 					}
+					
 					break;
 				}
+				//else the loop continues until user enters valid input (1 or 2 or ctrl+z)
 			}
 		}
 		
 		while(continueAddingEmployee)//loops until user enters valid input 
 		{
 			printf("\tEmployee salary ($): ");
-			if(!take_string_input(employee.salary)) break;
-			
-			if(is_convertable_to_double(employee.salary))
+			if(!take_string_input(employee.salary)) 
 			{
+				//will break the loop and directly take the user to the main menu
+				continueAddingEmployee = 0;
 				break;
 			}
 			else
 			{
-				printf("Alert: Invalid input for salary. Please try again.\n");
+				if(is_convertable_to_double(employee.salary))
+				{
+					break;
+				}
+				else
+				{
+					printf("Alert: Invalid input for salary. Please try again.\n");
+				}
 			}
 		}
 		
@@ -347,24 +348,20 @@ void add_new_employee()
 			
 			printf("Press [y] to add another employee or press [n] to go back to main menu.\n");
 			
-			if(!take_char_input(&input))
+			if(!take_char_input(&input) || input == 'n' || input == 'N')
 			{
+				//break and take user to to main menu
 				continueAddingEmployee = 0;
-				break;
-				
-			}
-			
-			if(input == 'n' || input == 'N')
-			{
-				continueAddingEmployee = 0;
-				break;
+				break;			
 			}
 			else if(input == 'y' || input == 'Y')
 			{
+				//break and continue taking input for another employee
 				break;
 			}
 			else
 			{
+				//continue the loop until a valid input is given
 				printf("\a");//it gives an alert due to invalid input
 			}
 		}
