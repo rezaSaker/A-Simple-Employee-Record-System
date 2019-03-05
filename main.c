@@ -33,8 +33,10 @@ int main()
 		
 	}//end of while 
 	
-	//show exit message
+	//show exit message in green color
+	set_text_color("green");
 	printf("Thank you for using the program.");
+	set_text_color("reset");
 	
 	return 0;
 }

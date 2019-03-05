@@ -12,5 +12,6 @@ void delete_existing_employee();
 int confirm_user_decision(char confirmFor[]);
 int show_employee_data(struct employeeData employee, int employeeNum);
 void show_error_message(char message[]);
+void set_text_color(char color[]);
 
 #endif

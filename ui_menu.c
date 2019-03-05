@@ -11,6 +11,7 @@
 	*local functions
 	*used by this file ui_menu.c only 
 */
+
 int take_string_input(char *input)
 {
 	int i = 0;//only used for looping
@@ -30,7 +31,7 @@ int take_string_input(char *input)
 	}
 	input[i] = '\0'; //null char at the end will make it a full string
 	
-	//if user types --out it takes him to main menu instatntly  
+	//if user types --mm it takes him to main menu instatntly  
 	if(strcmp(input, "--mm") == 0)
 	{
 		return 0;
@@ -43,7 +44,7 @@ int take_char_input(char *ch)
 {
 	*ch = getch();
 	
-	//if user pressed ctrl + z, it will take the user to main menu instantly
+	//if user press ctrl+Z, it will take the user to main menu instantly
 	if(*ch == 26)
 	{
 		return 0;
@@ -64,13 +65,23 @@ int to_int(char digitChar)
 
 int is_leap_year(int year)
 {
-	if(year % 4 == 0 && year % 100 != 0)
+	if(year % 4 == 0)
 	{
-		return 1;
-	}
-	else if(year % 100 == 0 && year % 400 == 0)
-	{
-		return 1;
+		if(year % 100 == 0)
+		{
+			if(year % 400 == 0)
+			{
+				return 1;
+			}
+			else
+			{
+				return 0;
+			}
+		}
+		else
+		{
+			return 1;
+		}
 	}
 	else
 	{
@@ -137,15 +148,15 @@ int is_valid_date(char dateStr[])
 		return 0;
 	}
 	
-	//if all condition passed successfully, the date is valid
+	//if all conditions are passed successfully, the date is valid
 	return 1;
 }
 
 int is_convertable_to_double(char str[])
 {
-	//the string is convertible to double
-	//if it contains only digits
-	//f it contains only one decimal point
+	//the string is convertible to double...
+	//if it contains only digits...
+	//and if it contains only one decimal point
 	
 	int i = 0; //this is only used for loop
 	int numberOfDecimalPoints = 0;
@@ -174,8 +185,7 @@ int is_convertable_to_double(char str[])
 
 char on_main_menu()
 {
-	//clear the previous output on the screen first
-	system("cls");
+	system("cls");//clears the screen
 	
 	//print the main menu
 	printf("Enter the corresponding number to open that option:\n\n");
@@ -185,23 +195,22 @@ char on_main_menu()
 	printf("\t4 -> Delete Existing Employee\n");
 	printf("\t5 -> Exit\n");
 	
-	//let user choose option
-	char userInput = getch();
+	char userInput = getch();//let user choose an option
 	
 	return userInput;
 }
 
 void view_employee_list()
 {
-	//clear the previous output on the screen first
-	system("cls");
+	system("cls");//clears the screen
 	
 	int userViewResult = read_and_show_from_file("records.bin");
 	
 	if(userViewResult == 1)
 	{
 		//user saw all data until end of file
-		printf("\nYou have reached end of file. Press any key to go back to main menu.");
+		printf("\nYou have reached the  end of data. Press any key to go back to main menu.");
+		
 		getch();
 	}
 	else if(userViewResult == 2)
@@ -222,8 +231,7 @@ void add_new_employee()
 	
 	while(continueAddingEmployee)
 	{
-		//clear the previous output on the screen first
-		system("cls");
+		system("cls");//clears the screen
 		
 		//prompt user for input employee info
 		printf("Enter the employee information:\n\n");
@@ -255,7 +263,9 @@ void add_new_employee()
 				else
 				{
 					//will require the user to enter date again
-					printf("Alert: The date is not valid! Please try again\n");
+					set_text_color("red");
+					printf("Alert: The date is not valid! Please try again.\n");
+					set_text_color("reset");
 				}
 			}
 		}
@@ -265,6 +275,7 @@ void add_new_employee()
 			printf("\tChoose employee status:\n");
 			printf("\t\t1 -> Current Employee\n");
 			printf("\t\t2 -> Previous Employee\n");
+			
 			while(continueAddingEmployee)//loops until user enter valid input
 			{
 				char input;
@@ -274,50 +285,55 @@ void add_new_employee()
 					continueAddingEmployee = 0;
 					break;
 				}
-				
-				if(input == '1')
+				else
 				{
-					strcpy(employee.status, "Current employee");
-					printf("\tEmployee status: Current employee\n");
-					
-					//resigning date is not applicable since this is a current employee
-					strcpy(employee.resigningDate, "N/A");
-					
-					break;
-				}
-				else if(input == '2')
-				{
-					strcpy(employee.status, "Previous employee");
-					printf("\tEmployee status: Previous employee\n");
-					
-					//if status is prevoius employee, prompt user for resigning date
-					while(continueAddingEmployee)//loops until user enters valid input
+					if(input == '1')
 					{
-						printf("\tEmployee resgining date(dd/mm/yyyy): ");
-						if(!take_string_input(employee.resigningDate))
+						strcpy(employee.status, "Current employee");
+						printf("\tEmployee status: Current employee\n");
+						
+						//resigning date is not applicable since this is a current employee
+						strcpy(employee.resigningDate, "N/A");
+						
+						break;
+					}
+					else if(input == '2')
+					{
+						strcpy(employee.status, "Previous employee");
+						printf("\tEmployee status: Previous employee\n");
+						
+						//if status is prevoius employee, prompt user for resigning date
+						while(continueAddingEmployee)//loops until user enters valid input
 						{
-							//will break the loop and take the user directly to the main menu
-							continueAddingEmployee = 0;
-							break;
-						}
-						else
-						{
-							if(is_valid_date(employee.resigningDate))
+							printf("\tEmployee resgining date(dd/mm/yyyy): ");
+							if(!take_string_input(employee.resigningDate))
 							{
-								//break the loop and continue to take next input
+								//will break the loop and take the user directly to the main menu
+								continueAddingEmployee = 0;
 								break;
 							}
 							else
 							{
-								//will require the user to enter date again
-								printf("Alert: The date is not valid! Please try again\n");
+								if(is_valid_date(employee.resigningDate))
+								{
+									//break the loop and continue to take next input
+									break;
+								}
+								else
+								{
+									//will require the user to enter date again
+									set_text_color("red");
+									printf("Alert: The date is not valid! Please try again.\n");
+									set_text_color("reset");
+								}
 							}
 						}
+						
+						break;
 					}
-					
-					break;
+					//else the loop continues until user enters valid input (1 or 2 or m)
 				}
-				//else the loop continues until user enters valid input (1 or 2 or ctrl+z)
+				
 			}
 		}
 		
@@ -332,13 +348,15 @@ void add_new_employee()
 			}
 			else
 			{
-				if(is_convertable_to_double(employee.salary))
+				if(strlen(employee.salary) > 0 && is_convertable_to_double(employee.salary))
 				{
 					break;
 				}
 				else
 				{
+					set_text_color("red"); 
 					printf("Alert: Invalid input for salary. Please try again.\n");
+					set_text_color("reset");
 				}
 			}
 		}
@@ -348,11 +366,15 @@ void add_new_employee()
 		{
 			if(save_to_file(employee, "records.bin"))
 			{
+				set_text_color("green");
 				printf("\tEmployee information is successfully saved.\n\n");
+				set_text_color("reset");
 			}
 			else
 			{
-				show_error_message("The employee data could not be saved.");
+				set_text_color("red");
+				show_error_message("Alert: Something went wrong. Data could not be saved.");
+				set_text_color("reset");
 			}
 		}
 
@@ -385,19 +407,23 @@ void add_new_employee()
 
 void edit_existing_employee()
 {
-	//clear the previous output on the screen first
-	system("cls");
+	system("cls");//clears the screen
 	
-	printf("feature coming soon. Press anykey to go back to main menu");
+	set_text_color("yellow");
+	printf("feature coming soon. Press any key to go back to main menu");
+	set_text_color("reset");
+	
 	getche();
 }
 
 void delete_existing_employee()
 {
-	//clear the previous output on the screen first
-	system("cls");
+	system("cls");//clear the screen
 	
-	printf("feature coming soon. Press anykey to go back to main menu");
+	set_text_color("yellow");
+	printf("feature coming soon. Press any key to go back to main menu");
+	set_text_color("reset");
+	
 	getche();
 }
 
@@ -405,17 +431,16 @@ int confirm_user_decision(char confirmFor[])
 {	
 	if(strcmp(confirmFor, "exit") == 0)
 	{
-		//confirmation before exiting the program;
+		//confirmation before exiting the program
+		system("cls");//clear the screen
+			
+		//print the confirm message
+		printf("Are you sure you want to exit?\n");
+		printf("\t1 -> Yes\n");
+		printf("\t2 -> No\n");
+		
 		while(1)
-		{
-			//clear the previous output on the screen first
-			system("cls");
-			
-			//print the confirm message
-			printf("Are you sure you want to exit?\n");
-			printf("\t1 -> Yes\n");
-			printf("\t2 -> No\n");
-			
+		{	
 			//let the user confirm by entering 1 or 2
 			char userInput = getch();
 			
@@ -429,13 +454,15 @@ int confirm_user_decision(char confirmFor[])
 			}
 			else
 			{
-				printf("Invalid input. Please try again\n\n"); 
+				set_text_color("red");
+				printf("Alert: Invalid input. Please try again\n\n"); 
+				set_text_color("reset");
 			}			
 		}		
 	}
 	else if(strcmp(confirmFor, "add_employee") == 0)
 	{
-		//confirmation before saving employee
+		//confirmation before saving employee data
 		printf("\tDo you want to save the employee information?\n");
 		printf("\t\t1 -> Yes\n");
 		printf("\t\t2 -> No\n");
@@ -457,23 +484,26 @@ int confirm_user_decision(char confirmFor[])
 	}
 	else
 	{
-		printf("unrecognized argument error\n");
+		set_text_color("red");
+		printf("Alert: unrecognized argument error\n");
+		set_text_color("reset");
 		printf("press any key to go back");
 		getche();
+		
 		return 0;
 	}	
 }
 
 int show_employee_data(struct employeeData employee, int employeeNum)
 {
-	//we want to show no more than five employee data at a time
-	//so we will clear the screen after every five employee data is shown
-	if(employeeNum % 5 == 1)
+	//we want to show no more than 3 employee data at a time
+	//so we will clear the screen after every 3 employee data is shown
+	if(employeeNum % 3 == 1)
 	{
-		system("cls");//this will clear the screen 
+		system("cls");//clears the screen 
 	}
 	
-	printf("Employee Number : %d\n", employeeNum);
+	printf("Employee Number: %d\n", employeeNum);
 	printf("\tName          : %s\n", employee.name);
 	printf("\tID            : %s\n", employee.id);
 	printf("\tPosition      : %s\n", employee.position);
@@ -481,13 +511,14 @@ int show_employee_data(struct employeeData employee, int employeeNum)
 	printf("\tStatus        : %s\n", employee.status);
 	printf("\tResigning Date: %s\n", employee.resigningDate);
 	printf("\tSalary        : %s\n", employee.salary);
-	printf("\n");
+	printf("________________________________________________\n\n");
+
 	
-	if(employeeNum % 5 == 0)
+	if(employeeNum % 3 == 0)
 	{
 		char input;
 		
-		printf("press any key to load more or [ctrl] + [z] to go back to main manu.");
+		printf("press any key to load more or [ctrl]+[z} to go back to main manu.");		
 		if(!take_char_input(&input))
 		{
 			return 0;
@@ -499,17 +530,26 @@ int show_employee_data(struct employeeData employee, int employeeNum)
 
 void show_error_message(char message[])
 {
-	//clear the previous output on the screen first
-	system("cls");
+	system("cls");//clear the previous output on the screen first
 	
-	printf("\a");//gives a lttle alert
-	printf("%s\n\n", message);
+	set_text_color("red");
+	printf("Alert: %s\n\n", message);	
+	set_text_color("reset");
 	
 	printf("Press any key to go back");
 	getche();
 }
 
-/*
-	*functions that are used only by the members of this file
-*/
-
+void set_text_color(char color[])
+{
+	if(strcmp(color, "red") == 0)
+		printf("\033[0;31m");//set text color to red
+	else if(strcmp(color, "green") == 0)
+		printf("\033[0;32m");//set text color to green
+	else if(strcmp(color, "yellow") == 0)
+		printf("\033[0;33m");//set text color to yellow
+	else if(strcmp(color, "blue") == 0)
+		printf("\033[0;34m");//set text color to blue
+	else
+		printf("\033[0m");//set text color to default
+}
