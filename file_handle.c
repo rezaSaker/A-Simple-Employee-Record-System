@@ -5,7 +5,7 @@
 #include "file_handle.h"
 
 /*
-	*function defintions for file_handling.harderr
+	*function defintions for file_handle.h
 */
 
 int save_to_file(struct employeeData employee, char fileName[])

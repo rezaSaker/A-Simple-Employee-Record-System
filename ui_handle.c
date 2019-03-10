@@ -31,7 +31,7 @@ int take_string_input(char *input)
 	}
 	input[i] = '\0'; //null char at the end will make it a full string
 	
-	//if user types --mm it takes him to main menu instatntly  
+	//if user types --mm it takes the user to main menu instatntly  
 	if(strcmp(input, "--mm") == 0)
 	{
 		return 0;
@@ -55,12 +55,39 @@ int take_char_input(char *ch)
 
 int to_int(char digitChar)
 {
-	//we know the argument passed to the funnction is always a digit
+	//we know the argument passed to the funnction is always a digit.....
 	//because we check it before passing it to this function
-	//deleting '0' from any character that is digit 
+	//deleting '0' from any character that is digit.....
 	//gives the int value equal to that digit char
 	
 	return digitChar - '0';
+}
+
+int is_convertable_to_double(char str[])
+{
+	//the string is convertible to double...
+	//if it contains only digits...
+	//and if it contains only one decimal point
+	
+	int i = 0; //this is only used for loop
+	int numberOfDecimalPoints = 0;
+	
+	for(i = 0; i < strlen(str); i++)
+	{
+		if(!isdigit(str[i]) && str[i] != '.')
+		{
+			return 0;
+		}
+		else if(str[i] == '.')
+		{
+			if(++numberOfDecimalPoints > 1)
+			{
+				return 0;
+			}		
+		}
+	}
+	
+	return 1;
 }
 
 int is_leap_year(int year)
@@ -91,7 +118,7 @@ int is_leap_year(int year)
 
 int is_valid_date(char dateStr[])
 {	
-	int i = 0;//this is only used for loop
+	int i = 0;//only used for loop
 	int day, month, year, currentYear;
 	
 	//first check if the date is in dd/mm/yyyy for
@@ -152,35 +179,9 @@ int is_valid_date(char dateStr[])
 	return 1;
 }
 
-int is_convertable_to_double(char str[])
-{
-	//the string is convertible to double...
-	//if it contains only digits...
-	//and if it contains only one decimal point
-	
-	int i = 0; //this is only used for loop
-	int numberOfDecimalPoints = 0;
-	
-	for(i = 0; i < strlen(str); i++)
-	{
-		if(!isdigit(str[i]) && str[i] != '.')
-		{
-			return 0;
-		}
-		else if(str[i] == '.')
-		{
-			if(++numberOfDecimalPoints > 1)
-			{
-				return 0;
-			}		
-		}
-	}
-	
-	return 1;
-}
 
 /*
-	function definitions for ui_menu.h header file
+	function definitions for ui_handle.h
 */
 
 char on_main_menu()
