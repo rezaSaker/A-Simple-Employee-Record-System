@@ -1,8 +1,8 @@
 #include<stdio.h>
 #include<stdlib.h>
 #include<conio.h>
-#include "ui_handle.h"
-#include "file_handle.h"
+
+#include "ui_handle.h"//it also declares file_handle.h as header in it
 
 /*
 	*function defintions for file_handle.h
@@ -20,7 +20,7 @@ int save_to_file(struct employeeData employee, char fileName[])
 	}
 	else
 	{
-		fseek(file, 0, SEEK_END);//find the end of file and start adding data from there
+		//fseek(file, 0, SEEK_END);//find the end of file and start adding data from there
 		fwrite(&employee, sizeof(employee), 1, file);//write the data to the file
 		fclose(file);
 		

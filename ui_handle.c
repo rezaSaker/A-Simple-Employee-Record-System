@@ -4,8 +4,8 @@
 #include<ctype.h>
 #include<conio.h>
 #include<time.h>
-#include "ui_handle.h"
-#include "file_handle.h"
+
+#include "ui_handle.h"//it also declares file_handle.h as header in it
 
 /*
 	*local functions
