@@ -16,8 +16,7 @@ struct employeeData
 //function prototypes
 int save_to_file(struct employeeData employee, char fileName[]);
 int read_and_show_from_file(char fileName[]);
-int add_to_data_struct(struct employeeData employee);
-int remove_from_data_struct(struct employeeData employee);
+int delete_employee(struct employeeData employee);
 int lookup_employee(char searchStr[]);
 
 #endif

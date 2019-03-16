@@ -24,19 +24,24 @@ int main()
 				delete_existing_employee();
 				break;
 			case '5':
-				exitProgram = confirm_user_decision("exit");
+				if(user_confirmed_decision("exit"))
+				{
+					exitProgram = 1;
+				}
+				else
+				{
+					exitProgram = 0;
+				}
 				break;
 			default:
-				show_error_message("Invalid Input!");
+				show_error_message("Invalid Input. Please try again.");
 				break;			
 		}//end of switch
 		
 	}//end of while 
 	
-	//show exit message in green color
-	set_text_color("green");
-	printf("Thank you for using the program.");
-	set_text_color("reset");
+	//show exit message
+	show_success_message("The program has been successfully closed. Thank you for using this program.");
 	
 	return 0;
 }

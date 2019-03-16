@@ -2,7 +2,7 @@
 #include<stdlib.h>
 #include<conio.h>
 
-#include "ui_handle.h"//it also declares file_handle.h as header in it
+#include "ui_handle.h"//it declares file_handle.h as header in it
 
 /*
 	*function defintions for file_handle.h
@@ -20,7 +20,7 @@ int save_to_file(struct employeeData employee, char fileName[])
 	}
 	else
 	{
-		//fseek(file, 0, SEEK_END);//find the end of file and start adding data from there
+		//add data from the end of the file
 		fwrite(&employee, sizeof(employee), 1, file);//write the data to the file
 		fclose(file);
 		
@@ -59,12 +59,7 @@ int read_and_show_from_file(char fileName[])
 	}
 }
 
-int add_to_data_struct(struct employeeData employee)
-{
-	
-}
-
-int remove_from_data_struct(struct employeeData employee)
+int delete_employee(struct employeeData employee)
 {
 	
 }

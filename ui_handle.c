@@ -5,7 +5,7 @@
 #include<conio.h>
 #include<time.h>
 
-#include "ui_handle.h"//it also declares file_handle.h as header in it
+#include "ui_handle.h"//it also declares file_handle.h as header in itself
 
 /*
 	*local functions
@@ -63,7 +63,7 @@ int to_int(char digitChar)
 	return digitChar - '0';
 }
 
-int is_convertable_to_double(char str[])
+int is_double(char str[])
 {
 	//the string is convertible to double...
 	//if it contains only digits...
@@ -72,21 +72,29 @@ int is_convertable_to_double(char str[])
 	int i = 0; //this is only used for loop
 	int numberOfDecimalPoints = 0;
 	
-	for(i = 0; i < strlen(str); i++)
+	if(strlen(str) < 1) 
 	{
-		if(!isdigit(str[i]) && str[i] != '.')
+		return 0;
+	}
+	else
+	{
+		for(i = 0; i < strlen(str); i++)
 		{
-			return 0;
-		}
-		else if(str[i] == '.')
-		{
-			if(++numberOfDecimalPoints > 1)
+			if(!isdigit(str[i]) && str[i] != '.')
 			{
 				return 0;
-			}		
+			}
+			else if(str[i] == '.')
+			{
+				if(++numberOfDecimalPoints > 1)
+				{
+					return 0;
+				}		
+			}
 		}
 	}
 	
+	//if all conditions are passed, the string value is valid double value
 	return 1;
 }
 
@@ -234,8 +242,8 @@ void add_new_employee()
 	{
 		system("cls");//clears the screen
 		
-		//prompt user for input employee info
-		printf("Enter the employee information:\n\n");
+		//prompt user to enter employee info
+		printf("Enter the employee information below:\n\n");
 		printf("\tEmployee name: ");
 		if(!take_string_input(employee.name)) break;
 		
@@ -245,12 +253,12 @@ void add_new_employee()
 		printf("\tEmployee position: ");
 		if(!take_string_input(employee.position)) break;
 		
-		while(continueAddingEmployee)//loops until user enter valid date
+		while(continueAddingEmployee)//loops until user enters valid date
 		{
 			printf("\tEmployee joining date(dd/mm/yyyy): ");
 			if(!take_string_input(employee.joiningDate))
 			{
-				//will break current loop and take the user directly to the main menu
+				//breaks current loop and take the user directly to the main menu
 				continueAddingEmployee = 0;
 				break;
 			}
@@ -258,15 +266,13 @@ void add_new_employee()
 			{
 				if(is_valid_date(employee.joiningDate))
 				{
-					//will break this loop and continue to take next input
+					//breaks current loop and continue to take next input
 					break;
 				}
 				else
 				{
-					//will require the user to enter date again
-					set_text_color("red");
-					printf("Alert: The date is not valid! Please try again.\n");
-					set_text_color("reset");
+					//requires the user to enter date again
+					show_error_message("The date is not valid. Please try again");
 				}
 			}
 		}
@@ -303,13 +309,13 @@ void add_new_employee()
 						strcpy(employee.status, "Previous employee");
 						printf("\tEmployee status: Previous employee\n");
 						
-						//if status is prevoius employee, prompt user for resigning date
+						//if status is prevoius employee, prompts user to enter resigning date
 						while(continueAddingEmployee)//loops until user enters valid input
 						{
 							printf("\tEmployee resgining date(dd/mm/yyyy): ");
 							if(!take_string_input(employee.resigningDate))
 							{
-								//will break the loop and take the user directly to the main menu
+								//breaks the loop and takes the user directly to the main menu
 								continueAddingEmployee = 0;
 								break;
 							}
@@ -317,90 +323,82 @@ void add_new_employee()
 							{
 								if(is_valid_date(employee.resigningDate))
 								{
-									//break the loop and continue to take next input
+									//breaks the loop and continues to take next input
 									break;
 								}
 								else
 								{
-									//will require the user to enter date again
-									set_text_color("red");
-									printf("Alert: The date is not valid! Please try again.\n");
-									set_text_color("reset");
+									//requires the user to enter date again
+									show_error_message("The date is not valid. Please try again.");
 								}
 							}
 						}
 						
 						break;
 					}
-					//else the loop continues until user enters valid input (1 or 2 or m)
-				}
-				
+				}			
 			}
 		}
 		
 		while(continueAddingEmployee)//loops until user enters valid input 
 		{
-			printf("\tEmployee salary ($): ");
+			printf("\tEmployee's salary ($): ");
 			if(!take_string_input(employee.salary)) 
 			{
-				//will break the loop and directly take the user to the main menu
+				//breaks the loop and directly takes the user to the main menu
 				continueAddingEmployee = 0;
 				break;
 			}
 			else
 			{
-				if(strlen(employee.salary) > 0 && is_convertable_to_double(employee.salary))
+				if(is_double(employee.salary))
 				{
 					break;
 				}
 				else
 				{
-					set_text_color("red"); 
-					printf("Alert: Invalid input for salary. Please try again.\n");
-					set_text_color("reset");
+					show_error_message("Invalid salary. Please try again.");
 				}
 			}
 		}
 		
 		//confirm before saving the employee information
-		if(continueAddingEmployee && confirm_user_decision("add_employee"))
+		if(continueAddingEmployee)
 		{
-			if(save_to_file(employee, "records.bin"))
+			if(user_confirmed_decision("save_employee"))
 			{
-				set_text_color("green");
-				printf("\tEmployee information is successfully saved.\n\n");
-				set_text_color("reset");
+				if(save_to_file(employee, "records.bin"))
+				{
+					show_success_message("Employee information is successfully saved.");
+				}
+				else
+				{
+					show_error_message("Something went wrong. The employee information could not be saved.");
+				}
+			}
+			else if(!user_confirmed_decision("save_employee"))
+			{
+				printf("Attention: The employee data was not saved.");
 			}
 			else
 			{
-				set_text_color("red");
-				show_error_message("Alert: Something went wrong. Data could not be saved.");
-				set_text_color("reset");
+				//user pressed ctrl+z, so the loop needs to break...
+				//and take the user to main menu
+				continueAddingEmployee = 0;
 			}
 		}
 
-		//prompt user to choose if the user wants to add another employee data
+		//prompts user to choose if the user wants to add another employee data
 		while(continueAddingEmployee)//loops until user enters valid input
 		{
-			char input;
-			
-			printf("Press [y] to add another employee or press [n] to go back to main menu.\n");
-			
-			if(!take_char_input(&input) || input == 'n' || input == 'N')
+			if(user_confirmed_decision("add_another_employee"))
 			{
-				//break and take user to to main menu
-				continueAddingEmployee = 0;
-				break;			
-			}
-			else if(input == 'y' || input == 'Y')
-			{
-				//break and continue taking input for another employee
 				break;
 			}
 			else
 			{
-				//continue the loop until a valid input is given
-				printf("\a");//it gives an alert due to invalid input
+				continueAddingEmployee = 0;
+				break;
 			}
 		}
 	}
@@ -410,39 +408,30 @@ void edit_existing_employee()
 {
 	system("cls");//clears the screen
 	
-	set_text_color("yellow");
-	printf("feature coming soon. Press any key to go back to main menu");
-	set_text_color("reset");
+	show_error_message("Feature is currently not available. press any key to go back");
 	
-	getche();
+	getch();
 }
 
 void delete_existing_employee()
 {
 	system("cls");//clear the screen
 	
-	set_text_color("yellow");
-	printf("feature coming soon. Press any key to go back to main menu");
-	set_text_color("reset");
+	show_error_message("Feature is currently not available. press any key to go back");
 	
-	getche();
+	getch();
 }
 
-int confirm_user_decision(char confirmFor[])
+int user_confirmed_decision(char confirmFor[])
 {	
 	if(strcmp(confirmFor, "exit") == 0)
-	{
-		//confirmation before exiting the program
-		system("cls");//clear the screen
-			
-		//print the confirm message
-		printf("Are you sure you want to exit?\n");
-		printf("\t1 -> Yes\n");
-		printf("\t2 -> No\n");
-		
+	{	//confirmation before exiting the program			
 		while(1)
 		{	
-			//let the user confirm by entering 1 or 2
+			printf("Are you sure you want to exit?\n");
+			printf("\t1 -> Yes\n");
+			printf("\t2 -> No\n");
+			
 			char userInput = getch();
 			
 			if(userInput == '1')
@@ -455,41 +444,80 @@ int confirm_user_decision(char confirmFor[])
 			}
 			else
 			{
-				set_text_color("red");
-				printf("Alert: Invalid input. Please try again\n\n"); 
-				set_text_color("reset");
+				show_error_message("Invalid input. Please try again.");
 			}			
 		}		
 	}
-	else if(strcmp(confirmFor, "add_employee") == 0)
+	else if(strcmp(confirmFor, "save_employee") == 0)
 	{
 		//confirmation before saving employee data
-		printf("\tDo you want to save the employee information?\n");
-		printf("\t\t1 -> Yes\n");
-		printf("\t\t2 -> No\n");
 		
-		while(1)
+		char userInput;
+		
+		while(1)//loops until user enters a valid value which is 1 or 2
 		{	
-			//let the user confirm by entering 1 or 2
-			char userInput = getch();
-			
-			if(userInput == '1')
-			{				
-				return 1;
-			}
-			else if(userInput == '2')
+			printf("\tDo you want to save the employee information?\n");
+			printf("\t\t1 -> Yes\n");
+			printf("\t\t2 -> No\n");
+		
+			if(!take_char_input(&userInput))
 			{
-				return 0;
-			}			
+				return 2;//returning 2 will take the user to main menu directly
+			}
+			else 
+			{
+				if(userInput == '1')
+				{				
+					return 1;
+				}
+				else if(userInput == '2')
+				{
+					return 0;
+				}
+				else
+				{
+					show_error_message("Invalid input. Please try again.");
+				}	
+			}	
+		}	
+	}
+	else if(strcmp(confirmFor, "add_another_employee") == 0)
+	{
+		//confirmation before adding another employee
+		
+		char userInput;
+		
+		while(1)//loops until user enters a valid input
+		{	
+			printf("\tDo you want to add another employee?\n");
+			printf("\t\t1 -> Yes\n");
+			printf("\t\t2 -> No\n");
+		
+			if(take_char_input(&userInput))
+			{
+				if(userInput == '1')
+				{				
+					return 1;
+				}
+				else if(userInput == '2')
+				{
+					return 0;
+				}
+				else
+				{
+					show_error_message("Invalid input. Please try again.");
+				}
+			}
+			else 
+			{
+				return 0;	
+			}	
 		}	
 	}
 	else
-	{
-		set_text_color("red");
-		printf("Alert: unrecognized argument error\n");
-		set_text_color("reset");
-		printf("press any key to go back");
-		getche();
+	{	
+		show_error_message("Unrecognized argument received in confirm_user_decision");
+		getch();
 		
 		return 0;
 	}	
@@ -529,28 +557,16 @@ int show_employee_data(struct employeeData employee, int employeeNum)
 	return 1;
 }
 
-void show_error_message(char message[])
+void show_success_message(char message[])
 {
-	system("cls");//clear the previous output on the screen first
-	
-	set_text_color("red");
-	printf("Alert: %s\n\n", message);	
-	set_text_color("reset");
-	
-	printf("Press any key to go back");
-	getche();
+	printf("\033[0;32m");//set text color to green
+	printf("%s\n\n", message);
+	printf("\033[0m");//set text color to default
 }
 
-void set_text_color(char color[])
+void show_error_message(char message[])
 {
-	if(strcmp(color, "red") == 0)
-		printf("\033[0;31m");//set text color to red
-	else if(strcmp(color, "green") == 0)
-		printf("\033[0;32m");//set text color to green
-	else if(strcmp(color, "yellow") == 0)
-		printf("\033[0;33m");//set text color to yellow
-	else if(strcmp(color, "blue") == 0)
-		printf("\033[0;34m");//set text color to blue
-	else
-		printf("\033[0m");//set text color to default
+	printf("\033[0;31m");//set text color to red
+	printf("Alert: %s\n\n", message);	
+	printf("\033[0m");//set text color to default
 }
