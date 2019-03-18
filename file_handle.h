@@ -14,9 +14,10 @@ struct employeeData
 };
 
 //function prototypes
-int save_to_file(struct employeeData employee, char fileName[]);
-int read_and_show_from_file(char fileName[]);
+int add_to_file(struct employeeData employee, char fileName[]);
+int read_from_file(char fileName[], char readType[]);
+int update_file(char fileName[], char employeeId[], struct employeeData argEmployee);
 int delete_employee(struct employeeData employee);
-int lookup_employee(char searchStr[]);
-
+int found_employee(char searchStr[]);
+int exist(char filenName[], char employeeId[]);
 #endif

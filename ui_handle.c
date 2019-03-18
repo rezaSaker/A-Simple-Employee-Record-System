@@ -187,6 +187,154 @@ int is_valid_date(char dateStr[])
 	return 1;
 }
 
+int take_employee_info(struct employeeData *employee)
+{	
+	//prompt user to enter employee info
+	printf("Enter the employee information below:\n(Hint: type [same] for the fields that you don't want to change)\n\n");
+	printf("\tEmployee name: ");	
+	if(!take_string_input(employee->name)) 
+	{
+		return 0;// takes user to main menu
+	}
+		
+	while(1)//loops until user enters valid employee id
+	{
+		printf("\tEmployee ID: ");
+		if(take_string_input(employee->id))
+		{
+			if(strcmp(employee->id, "same") != 0 && exist("records.bin", employee->id))
+			{
+				show_error_message("The ID already belongs to another employee. Please provide an unique ID.");
+			}
+			else
+			{
+				//the id is valid , so breaks the loop and takes next input
+				break;
+			}
+		}
+		else
+		{
+			//user entered --mm, so terminates the current process..
+			//..and takes the user to main menu directly
+			return 0;
+		}
+	}
+		
+	printf("\tEmployee position: ");
+	if(!take_string_input(employee->position))
+	{
+		return 0;//takes user to main menu
+	}
+		
+	while(1)//loops until user enters valid date
+	{
+		printf("\tEmployee joining date(dd/mm/yyyy): ");
+		if(!take_string_input(employee->joiningDate))
+		{
+			//takes the user directly to the main menu
+			return 0;
+		}
+		else
+		{
+			if(strcmp(employee->joiningDate, "same") == 0 || is_valid_date(employee->joiningDate))
+			{
+				//breaks current loop and continue to take next input
+				break;
+			}
+			else
+			{
+				//requires the user to enter date again
+				show_error_message("The date is not valid. Please try again");
+			}
+		}
+	}
+		
+	printf("\tChoose employee status:\n");
+	printf("\t\t1 -> Current Employee\n");
+	printf("\t\t2 -> Previous Employee\n");
+			
+	while(1)//loops until user enter valid input
+	{
+		char input;
+				
+		if(!take_char_input(&input))
+		{
+			return 0;//takes the user to main menu
+		}
+		else
+		{
+			if(input == '1')
+			{
+				strcpy(employee->status, "Current employee");
+				printf("\tEmployee status: Current employee\n");
+						
+				//resigning date is not applicable since this is a current employee
+				strcpy(employee->resigningDate, "N/A");
+						
+				break;
+			}
+			else if(input == '2')
+			{
+				strcpy(employee->status, "Previous employee");
+				printf("\tEmployee status: Previous employee\n");
+						
+				//if status is prevoius employee, prompts user to enter resigning date
+				while(1)//loops until user enters valid date
+				{
+					printf("\tEmployee resgining date(dd/mm/yyyy): ");
+					if(!take_string_input(employee->resigningDate))
+					{
+						//breaks the loop and takes the user directly to the main menu
+						return 0;
+					}
+					else
+					{
+						if(strcmp(employee->resigningDate, "same") == 0 || is_valid_date(employee->resigningDate))
+						{
+							//breaks the loop and continues to take next input
+							break;
+						}
+						else
+						{
+							//requires the user to enter date again
+							show_error_message("The date is not valid. Please try again.");
+						}
+					}
+				}
+						
+				break;
+			}
+			else
+			{
+				show_error_message("Inavalid input. please try again.");
+			}
+		}			
+	}
+	
+	while(1)//loops until user enters valid input 
+	{
+		printf("\tEmployee's salary ($): ");
+		if(!take_string_input(employee->salary)) 
+		{
+			//breaks the loop and directly takes the user to the main menu
+			return 0;
+		}
+		else
+		{
+			if(strcmp(employee->salary, "same") == 0 || is_double(employee->salary))
+			{
+				break;
+			}
+			else
+			{
+				show_error_message("Invalid salary. Please try again.");
+			}
+		}
+	}
+		
+	return 1;
+}
+
 
 /*
 	function definitions for ui_handle.h
@@ -213,21 +361,21 @@ void view_employee_list()
 {
 	system("cls");//clears the screen
 	
-	int userViewResult = read_and_show_from_file("records.bin");
+	int result = read_from_file("records.bin","READ_ALL");
 	
-	if(userViewResult == 1)
+	if(result == 1)
 	{
 		//user saw all data until end of file
 		printf("\nYou have reached the  end of data. Press any key to go back to main menu.");
 		
 		getch();
 	}
-	else if(userViewResult == 2)
+	else if(result == 2)
 	{
 		//no file was found 
 		show_error_message("No data available.");
 	}
-	//else if userViewResult = 3, 
+	//else if result = 3, 
 	//then, user wants to return to the main menu directly
 	//and no action needs to be taken
 }
@@ -245,13 +393,43 @@ void add_new_employee()
 		//prompt user to enter employee info
 		printf("Enter the employee information below:\n\n");
 		printf("\tEmployee name: ");
-		if(!take_string_input(employee.name)) break;
+		if(!take_string_input(employee.name)) 
+		{
+			break;//breaks current loop and takes user to main menu
+		}
 		
-		printf("\tEmployee ID: ");
-		if(!take_string_input(employee.id)) break;
+		while(continueAddingEmployee)
+		{
+			printf("\tEmployee ID: ");
+			if(take_string_input(employee.id))
+			{
+				if(exist("records.bin", employee.id))
+				{
+					show_error_message("The ID already belongs to another employee. Please provide an unique ID.");
+				}
+				else
+				{
+					//the id is valid becuase it doesn't belong to any other employees
+					break;
+				}
+			}
+			else
+			{
+				//user entered --mm, so terminates the current process..
+				//..and takes the user to main menu directly
+				continueAddingEmployee = 0;
+				break;
+			}
+		}
 		
-		printf("\tEmployee position: ");
-		if(!take_string_input(employee.position)) break;
+		if(continueAddingEmployee)
+		{
+			printf("\tEmployee position: ");
+			if(!take_string_input(employee.position))
+			{
+				break;//breaks current loop and takes user to main menu
+			}
+		}
 		
 		while(continueAddingEmployee)//loops until user enters valid date
 		{
@@ -276,68 +454,66 @@ void add_new_employee()
 				}
 			}
 		}
-		
-		if(continueAddingEmployee)
+				
+		while(continueAddingEmployee)//loops until user enter valid input
 		{
+			char input;
+				
 			printf("\tChoose employee status:\n");
 			printf("\t\t1 -> Current Employee\n");
 			printf("\t\t2 -> Previous Employee\n");
-			
-			while(continueAddingEmployee)//loops until user enter valid input
-			{
-				char input;
 				
-				if(!take_char_input(&input))
+			if(!take_char_input(&input))
+			{
+				continueAddingEmployee = 0;
+			}
+			else
+			{
+				if(input == '1')
 				{
-					continueAddingEmployee = 0;
+					strcpy(employee.status, "Current employee");
+					printf("\tEmployee status: Current employee\n");
+						
+					//resigning date is not applicable since this is a current employee
+					strcpy(employee.resigningDate, "N/A");
+						
 					break;
 				}
-				else
+				else if(input == '2')
 				{
-					if(input == '1')
+					strcpy(employee.status, "Previous employee");
+					printf("\tEmployee status: Previous employee\n");
+						
+					//if status is prevoius employee, prompts user to enter resigning date
+					while(continueAddingEmployee)//loops until user enters valid input
 					{
-						strcpy(employee.status, "Current employee");
-						printf("\tEmployee status: Current employee\n");
-						
-						//resigning date is not applicable since this is a current employee
-						strcpy(employee.resigningDate, "N/A");
-						
-						break;
-					}
-					else if(input == '2')
-					{
-						strcpy(employee.status, "Previous employee");
-						printf("\tEmployee status: Previous employee\n");
-						
-						//if status is prevoius employee, prompts user to enter resigning date
-						while(continueAddingEmployee)//loops until user enters valid input
+						printf("\tEmployee resgining date(dd/mm/yyyy): ");
+						if(!take_string_input(employee.resigningDate))
 						{
-							printf("\tEmployee resgining date(dd/mm/yyyy): ");
-							if(!take_string_input(employee.resigningDate))
+							//breaks the loop and takes the user directly to the main menu
+							continueAddingEmployee = 0;
+						}
+						else
+						{
+							if(is_valid_date(employee.resigningDate))
 							{
-								//breaks the loop and takes the user directly to the main menu
-								continueAddingEmployee = 0;
+								//breaks the loop and continues to take next input
 								break;
 							}
 							else
 							{
-								if(is_valid_date(employee.resigningDate))
-								{
-									//breaks the loop and continues to take next input
-									break;
-								}
-								else
-								{
-									//requires the user to enter date again
-									show_error_message("The date is not valid. Please try again.");
-								}
+								//requires the user to enter date again
+								show_error_message("The date is not valid. Please try again.");
 							}
 						}
-						
-						break;
-					}
-				}			
-			}
+					}					
+					break;
+				}
+				else
+				{
+					show_error_message("Invalid input. Please try again.");
+				}
+			}			
 		}
 		
 		while(continueAddingEmployee)//loops until user enters valid input 
@@ -347,7 +523,6 @@ void add_new_employee()
 			{
 				//breaks the loop and directly takes the user to the main menu
 				continueAddingEmployee = 0;
-				break;
 			}
 			else
 			{
@@ -367,7 +542,7 @@ void add_new_employee()
 		{
 			if(user_confirmed_decision("save_employee"))
 			{
-				if(save_to_file(employee, "records.bin"))
+				if(add_to_file(employee, "records.bin"))
 				{
 					show_success_message("Employee information is successfully saved.");
 				}
@@ -398,7 +573,6 @@ void add_new_employee()
 			else
 			{
 				continueAddingEmployee = 0;
-				break;
 			}
 		}
 	}
@@ -406,11 +580,74 @@ void add_new_employee()
 
 void edit_existing_employee()
 {
-	system("cls");//clears the screen
+	struct employeeData employee;
 	
-	show_error_message("Feature is currently not available. press any key to go back");
+	char employeeId[1001];
 	
-	getch();
+	while(1)//loops until user wants to go back to main menu
+	{
+		system("cls");//clears the screen
+		
+		//prompt user to enter employee id to find and edit the employee information
+		printf("Enter the employee Id: ");
+		if(take_string_input(employeeId))
+		{
+			if(exist("records.bin", employeeId))
+			{
+				int result = read_from_file("records.bin", employeeId);
+				
+				if(result == 1)//employee found
+				{
+					if(user_confirmed_decision("edit_employee"))
+					{
+						if(take_employee_info(&employee))
+						{
+							if(update_file("records.bin", employeeId, employee))
+							{
+								show_success_message("The employee information has been successfully updated.");
+							}
+							else
+							{
+								show_error_message("Sorry, could not updated the information");
+							}
+						}
+						else
+						{
+							//user entered --mm or ctrl+z..
+							//so breaks the loop and takes the user directly to main menu
+							break;
+						}
+					}
+					else
+					{
+						printf("The employee information was not changed\n\n");
+					}
+					
+					//prompts to check if user wants to edit another employee info
+					//if not, breaks the loop and takes the user to main menu
+					if(!user_confirmed_decision("edit_another_employee")) break;
+				}
+				else if(result == 2)//file opeing error occurred
+				{
+					show_error_message("Sorry, could not find the file.");
+				}
+				else
+				{
+					break;//breaks and takes the user to main menu
+				}
+			}
+			else
+			{
+				char message[1001] = "No employee found with ID ";
+				strcat(message, employeeId);
+				show_error_message(message);
+			}
+		}
+		else
+		{
+			break;//breaks the loop and takes the user to main menu
+		}
+	}
 }
 
 void delete_existing_employee()
@@ -424,7 +661,7 @@ void delete_existing_employee()
 
 int user_confirmed_decision(char confirmFor[])
 {	
-	if(strcmp(confirmFor, "exit") == 0)
+	if(!strcmp(confirmFor, "exit"))
 	{	//confirmation before exiting the program			
 		while(1)
 		{	
@@ -448,7 +685,7 @@ int user_confirmed_decision(char confirmFor[])
 			}			
 		}		
 	}
-	else if(strcmp(confirmFor, "save_employee") == 0)
+	else if(!strcmp(confirmFor, "save_employee"))
 	{
 		//confirmation before saving employee data
 		
@@ -481,7 +718,7 @@ int user_confirmed_decision(char confirmFor[])
 			}	
 		}	
 	}
-	else if(strcmp(confirmFor, "add_another_employee") == 0)
+	else if(!strcmp(confirmFor, "add_another_employee"))
 	{
 		//confirmation before adding another employee
 		
@@ -490,6 +727,72 @@ int user_confirmed_decision(char confirmFor[])
 		while(1)//loops until user enters a valid input
 		{	
 			printf("\tDo you want to add another employee?\n");
+			printf("\t\t1 -> Yes\n");
+			printf("\t\t2 -> No\n");
+		
+			if(take_char_input(&userInput))
+			{
+				if(userInput == '1')
+				{				
+					return 1;
+				}
+				else if(userInput == '2')
+				{
+					return 0;
+				}
+				else
+				{
+					show_error_message("Invalid input. Please try again.");
+				}
+			}
+			else 
+			{
+				return 0;	
+			}	
+		}	
+	}
+	else if(!strcmp(confirmFor, "edit_employee"))
+	{
+		//confirmation before editing employee info
+		
+		char userInput;
+		
+		while(1)//loops until user enters a valid input
+		{	
+			printf("\tDo you want to edit this employee information?\n");
+			printf("\t\t1 -> Yes\n");
+			printf("\t\t2 -> No\n");
+		
+			if(take_char_input(&userInput))
+			{
+				if(userInput == '1')
+				{				
+					return 1;
+				}
+				else if(userInput == '2')
+				{
+					return 0;
+				}
+				else
+				{
+					show_error_message("Invalid input. Please try again.");
+				}
+			}
+			else 
+			{
+				return 0;	
+			}	
+		}	
+	}
+	else if(!strcmp(confirmFor, "edit_another_employee"))
+	{
+		//confirmation before editing another employee info
+		
+		char userInput;
+		
+		while(1)//loops until user enters a valid input
+		{	
+			printf("\tDo you want to edit another employee information?\n");
 			printf("\t\t1 -> Yes\n");
 			printf("\t\t2 -> No\n");
 		
@@ -532,7 +835,7 @@ int show_employee_data(struct employeeData employee, int employeeNum)
 		system("cls");//clears the screen 
 	}
 	
-	printf("Employee Number: %d\n", employeeNum);
+	if(employeeNum > -1) printf("Employee Number: %d\n", employeeNum);
 	printf("\tName          : %s\n", employee.name);
 	printf("\tID            : %s\n", employee.id);
 	printf("\tPosition      : %s\n", employee.position);
