@@ -9,12 +9,11 @@ currently available feature
 
 > 1. Add new employee record
 > 2. View current employee record
-
+> 3. Edit employee record
 
 ___
 features coming soon
 
-> * Edit employee record
 > * Delete employee record
 > * Search employee record
 > * Auto record backup
