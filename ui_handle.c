@@ -627,16 +627,37 @@ void UI_DeleteRecord()
 
 int UI_UserConfirmed(char confirmFor[])
 {	
+	char userInput;
+	char message[100];
 	if(IsEqualStr(confirmFor, "exit"))
 	{			
-		while(1)
-		{	
-			printf("Are you sure you want to exit?\n");
-			printf("\t1 -> Yes\n");
-			printf("\t2 -> No\n");
-			
-			char userInput = getch();
-			
+		strcpy(message, "Are you sure you want to exit?\n");
+	}
+	else if(IsEqualStr(confirmFor, "save_record"))
+	{	
+		strcpy(message, "Do you want to save the record?\n");		
+	}
+	else if(IsEqualStr(confirmFor, "add_another_record"))
+	{	
+		strcpy(message, "Do you want to add another record?\n");
+	}
+	else if(IsEqualStr(confirmFor, "edit_record"))
+	{	
+		strcpy(message, "Do you want to edit this record?\n");
+	}
+	else if(IsEqualStr(confirmFor, "edit_another_record"))
+	{	
+		strcpy(message, "Do you want to edit another record?\n");
+	}
+
+	while(1)
+	{	
+		printf("\t%s", message);
+		printf("\t\t1 -> Yes\n");
+		printf("\t\t2 -> No\n");
+		
+		if(ReadChar(&userInput))
+		{
 			if(userInput == '1')
 			{				
 				return 1;
@@ -648,140 +669,13 @@ int UI_UserConfirmed(char confirmFor[])
 			else
 			{
 				UI_ShowErrorMsg("Invalid input. Please try again.");
-			}			
-		}		
-	}
-	else if(IsEqualStr(confirmFor, "save_record"))
-	{	
-		char userInput;
-		
-		while(1)
-		{	
-			printf("\tDo you want to save the record to file?\n");
-			printf("\t\t1 -> Yes\n");
-			printf("\t\t2 -> No\n");
-		
-			if(!ReadChar(&userInput))
-			{
-				return 2;
-			}
-			else 
-			{
-				if(userInput == '1')
-				{				
-					return 1;
-				}
-				else if(userInput == '2')
-				{
-					return 0;
-				}
-				else
-				{
-					UI_ShowErrorMsg("Invalid input. Please try again.");
-				}	
 			}	
-		}	
+		}
+		else 
+		{
+			return 0;		
+		}
 	}
-	else if(IsEqualStr(confirmFor, "add_another_record"))
-	{	
-		char userInput;
-		
-		while(1)
-		{	
-			printf("\tDo you want to add another record?\n");
-			printf("\t\t1 -> Yes\n");
-			printf("\t\t2 -> No\n");
-		
-			if(ReadChar(&userInput))
-			{
-				if(userInput == '1')
-				{				
-					return 1;
-				}
-				else if(userInput == '2')
-				{
-					return 0;
-				}
-				else
-				{
-					UI_ShowErrorMsg("Invalid input. Please try again.");
-				}
-			}
-			else 
-			{
-				return 0;	
-			}	
-		}	
-	}
-	else if(IsEqualStr(confirmFor, "edit_record"))
-	{	
-		char userInput;
-		
-		while(1)
-		{	
-			printf("\tDo you want to edit this employee record?\n");
-			printf("\t\t1 -> Yes\n");
-			printf("\t\t2 -> No\n");
-		
-			if(ReadChar(&userInput))
-			{
-				if(userInput == '1')
-				{				
-					return 1;
-				}
-				else if(userInput == '2')
-				{
-					return 0;
-				}
-				else
-				{
-					UI_ShowErrorMsg("Invalid input. Please try again.");
-				}
-			}
-			else 
-			{
-				return 0;	
-			}	
-		}	
-	}
-	else if(IsEqualStr(confirmFor, "edit_another_record"))
-	{	
-		char userInput;
-		
-		while(1)
-		{	
-			printf("\tDo you want to edit another employee record?\n");
-			printf("\t\t1 -> Yes\n");
-			printf("\t\t2 -> No\n");
-		
-			if(ReadChar(&userInput))
-			{
-				if(userInput == '1')
-				{				
-					return 1;
-				}
-				else if(userInput == '2')
-				{
-					return 0;
-				}
-				else
-				{
-					UI_ShowErrorMsg("Invalid input. Please try again.");
-				}
-			}
-			else 
-			{
-				return 0;	
-			}	
-		}	
-	}
-	else
-	{	
-		UI_ShowErrorMsg("Unrecognized argument received in UI_UserConfirmed");
-		getch();
-		
-		return 0;
-	}	
 }
 
 int UI_Display(struct EmployeeData employee, int employeeNum)
