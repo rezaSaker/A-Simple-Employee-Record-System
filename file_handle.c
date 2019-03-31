@@ -3,17 +3,42 @@
 #include<string.h>
 #include<conio.h>
 
-#include "ui_handle.h"//it declares file_handle.h as header in it
+#include "ui_handle.h"//also declares file_handle.h as header in itself
 
 /*
-	*function defintions for file_handle.h
+	*private functions
+	*only used by this file, file_handle.c
 */
 
-int add_to_file(struct employeeData employee, char fileName[])
+static int IsEqualStr(char str1[], char str2[])
+{
+	if(strlen(str1) != strlen(str2))
+	{
+		return 0;
+	}
+	
+	int i;
+	for(i = 0; i < str1[i] != '\0'; ++i)
+	{
+		if(str1[i] != str2[i])
+		{
+			return 0;
+		}	
+	}
+	
+	return 1;
+}
+
+/*
+	*public functions
+	*used by any file that declares file_handle.h as header
+*/
+
+int File_Append(struct EmployeeData employee)
 {
 	FILE *file;
 	
-	file = fopen(fileName, "ab");
+	file = fopen("records.bin", "ab");
 	
 	if(file == NULL)
 	{
@@ -21,88 +46,90 @@ int add_to_file(struct employeeData employee, char fileName[])
 	}
 	else
 	{
-		//add data from the end of the file
-		fwrite(&employee, sizeof(employee), 1, file);//write the data to the file
+		fwrite(&employee, sizeof(employee), 1, file);
 		fclose(file);
 		
 		return 1;
 	}
 }
 
-int read_from_file(char fileName[], char readType[])
+int File_ReadAll()
 {
 	int employeeNum = 0;//used to count number of employees
 	
-	struct employeeData employee;
+	struct EmployeeData employee;
 	
 	FILE *file;
 	
-	file = fopen(fileName, "rb");
+	file = fopen("records.bin", "rb");
 	
 	if(file == NULL)
 	{
-		return 2;//returning 2 will show error message via ui_menu.c 
+		return 2;
 	}
 	else
 	{
-		if(!strcmp(readType, "READ_ALL"))
+		while(fread(&employee, sizeof(employee), 1, file))
 		{
-			while(fread(&employee, sizeof(employee), 1, file))
+			if(!UI_Display(employee, ++employeeNum))
 			{
-				//show_employee_data() prints data for the employee
-				//return 0, if user doesn't want to continue
-				if(!show_employee_data(employee, ++employeeNum))
-				{
-					fclose(file);
-					return 3;//returning 3 will directly take the user to main menu
-				}
+				fclose(file);
+				return 3;
 			}
 		}
-		else
+		
+		return 1;
+	}
+}
+
+int File_ReadOne(char employeeId[])
+{
+	struct EmployeeData employee;
+	
+	FILE *file;
+	
+	file = fopen("records.bin", "rb");
+	
+	if(file == NULL)
+	{
+		return 2; 
+	}
+	else
+	{			
+		while(fread(&employee, sizeof(employee), 1, file))
 		{
-			//this means only one particular employee info needs to be show..
-			//the employee's id is sent as argument readType
-			char employeeId[1001];			
-			strcpy(employeeId, readType);
-			
-			while(fread(&employee, sizeof(employee), 1, file))
+			if(IsEqualStr(employee.id, employeeId))
 			{
-				//show_employee_data() prints data for the employee
-				//return 0, if user doesn't want to continue
-				if(!strcmp(employee.id, employeeId))
-				{
-					fclose(file);//closes the file coz we no longer need to read the file
+				fclose(file);
 					
-					if(show_employee_data(employee, -1))
-					{
-						break;
-					}
-					else
-					{
-						return 3;//returning 3 will take the user to main menu directly
-					}
+				if(UI_Display(employee, -1))
+				{
+					break;
+				}
+				else
+				{
+					return 3;
 				}
 			}
 		}
 		
-		return 1;//returning 1 will print success message via ui_menu.c
+		return 1;
 	}
 }
 
-int exist(char fileName[], char employeeId[])
+int File_ExistRecord(char employeeId[])
 {
-	struct employeeData employee;
+	struct EmployeeData employee;
 	
 	FILE *file;
 	
-	file = fopen(fileName, "rb");
+	file = fopen("records.bin", "rb");
 	
 	if(file != NULL)
 	{
-		//checks if the file contains the employee id sent as argument
 		while(fread(&employee, sizeof(employee), 1, file))
 		{
-			if(!strcmp(employeeId, employee.id))
+			if(IsEqualStr(employeeId, employee.id))
 			{
 				return 1;
 			}
@@ -112,13 +139,13 @@ int exist(char fileName[], char employeeId[])
 	return 0;
 }
 
-int update_file(char fileName[] , char employeeId[], struct employeeData argEmployee)
+int File_Update(char employeeId[], struct EmployeeData argEmployee)
 {
-	struct employeeData employee;
+	struct EmployeeData employee;
 	
 	FILE *file;
 	
-	file = fopen(fileName, "rb+");
+	file = fopen("records.bin", "rb+");
 	
 	if(file == NULL)
 	{
@@ -128,46 +155,40 @@ int update_file(char fileName[] , char employeeId[], struct employeeData argEmpl
 	{
 		while(fread(&employee, sizeof(employee), 1, file))
 		{
-			if(!strcmp(employee.id, employeeId))
+			if(IsEqualStr(employee.id, employeeId))
 			{
-				//found the employee data location in the file
-				//now overwrites the current info with new info
-				if(strcmp(argEmployee.name, "same") != 0)
+				if(!IsEqualStr(argEmployee.name, "same"))
 				{
 					strcpy(employee.name, argEmployee.name);
 				}
 				
-				if(strcmp(argEmployee.id, "same") != 0)
+				if(!IsEqualStr(argEmployee.id, "same"))
 				{
 					strcpy(employee.id, argEmployee.id);
 				}
 				
-				if(strcmp(argEmployee.position, "same") != 0)
+				if(!IsEqualStr(argEmployee.position, "same"))
 				{
 					strcpy(employee.position, argEmployee.position);
 				}
 				
-				if(strcmp(argEmployee.joiningDate, "same") != 0)
+				if(!IsEqualStr(argEmployee.joiningDate, "same"))
 				{
 					strcpy(employee.joiningDate, argEmployee.joiningDate);
-				}
+				}		
 				
-				if(strcmp(argEmployee.status, "same") != 0)
-				{
-					strcpy(employee.status, argEmployee.status);
-				}
+				strcpy(employee.status, argEmployee.status);
 				
-				if(strcmp(argEmployee.resigningDate, "same") != 0)
+				if(!IsEqualStr(argEmployee.resigningDate, "same"))
 				{
 					strcpy(employee.resigningDate, argEmployee.resigningDate);
 				}
 				
-				if(strcmp(argEmployee.salary, "same") != 0)
+				if(!IsEqualStr(argEmployee.salary, "same"))
 				{
 					strcpy(employee.salary, argEmployee.salary);
 				}
 				
-				//now write the new data in that location in the file
 				fseek(file, -sizeof(employee), SEEK_CUR);
 				fwrite(&employee, sizeof(employee), 1, file);
 				fclose(file);
@@ -177,12 +198,7 @@ int update_file(char fileName[] , char employeeId[], struct employeeData argEmpl
 	}
 }
 
-int delete_employee(struct employeeData employee)
-{
-	
-}
-
-int found_employee(char searchStr[])
+int File_delete(struct EmployeeData employee)
 {
 	
 }

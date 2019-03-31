@@ -2,7 +2,7 @@
 #define FILE_HANDLE_H
 
 //structure to deal with employee data in an organized wa
-struct employeeData
+struct EmployeeData
 {
 	char name[1001];
 	char id[1001];
@@ -14,10 +14,10 @@ struct employeeData
 };
 
 //function prototypes
-int add_to_file(struct employeeData employee, char fileName[]);
-int read_from_file(char fileName[], char readType[]);
-int update_file(char fileName[], char employeeId[], struct employeeData argEmployee);
-int delete_employee(struct employeeData employee);
-int found_employee(char searchStr[]);
-int exist(char filenName[], char employeeId[]);
+int File_Append(struct EmployeeData employee);
+int File_ReadAll();
+int File_ReadOne(char employeeId[]);
+int File_Update(char employeeId[], struct EmployeeData argEmployee);
+int File_Delete(struct EmployeeData employee);
+int File_ExistRecord(char employeeId[]);
 #endif

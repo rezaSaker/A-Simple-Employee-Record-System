@@ -4,14 +4,14 @@
 #define UI_HANDLE_H
 
 //function prototypes
-char on_main_menu();
-void view_employee_list();
-void add_new_employee();
-void edit_existing_employee();
-void delete_existing_employee();
-int user_confirmed_decision(char confirmFor[]);
-int show_employee_data(struct employeeData employee, int employeeNum);
-void show_success_message(char message[]);
-void show_error_message(char message[]);
+char UI_OnMainMenu();
+void UI_ShowRecord();
+void UI_AddRecord();
+void UI_EditRecord();
+void UI_DeleteRecord();
+int UI_UserConfirmed(char confirmFor[]);
+int UI_Display(struct EmployeeData employee, int employeeNum);
+void UI_ShowSuccessMsg(char message[]);
+void UI_ShowErrorMsg(char message[]);
 
 #endif

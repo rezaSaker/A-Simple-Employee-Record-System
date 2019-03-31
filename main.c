@@ -7,41 +7,37 @@ int main()
 	
 	while(!exitProgram)//continue the program until user exits
 	{
-		char userChosenOption = on_main_menu();
+		char userChosenOption = UI_OnMainMenu();
 		
 		switch(userChosenOption)
 		{
 			case '1':
-				view_employee_list();
+				UI_ShowRecord();
 				break;
 			case '2':
-				add_new_employee();
+				UI_AddRecord();
 				break;
 			case '3':
-				edit_existing_employee();
+				UI_EditRecord();
 				break;
 			case '4':
-				delete_existing_employee();
+				UI_DeleteRecord();
 				break;
 			case '5':
-				if(user_confirmed_decision("exit"))
+				if(UI_UserConfirmed("exit"))
 				{
 					exitProgram = 1;
 				}
-				else
-				{
-					exitProgram = 0;
-				}
 				break;
 			default:
-				show_error_message("Invalid Input. Please try again.");
+				UI_ShowErrorMsg("Invalid Input. Please try again.");
 				break;			
 		}//end of switch
 		
 	}//end of while 
 	
 	//show exit message
-	show_success_message("The program has been successfully closed. Thank you for using this program.");
+	UI_ShowSuccessMsg("The program has been successfully closed. Thank you for using this program.");
 	
 	return 0;
 }
