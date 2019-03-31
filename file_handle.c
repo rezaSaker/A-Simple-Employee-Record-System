@@ -3,7 +3,8 @@
 #include<string.h>
 #include<conio.h>
 
-#include "ui_handle.h"//also declares file_handle.h as header in itself
+#include "ui_handle.h"
+#include "file_handle.h"
 
 /*
 	*private functions
@@ -29,6 +30,25 @@ static int IsEqualStr(char str1[], char str2[])
 	return 1;
 }
 
+struct UI_EmployeeData ToUIEmployeeData(struct EmployeeData employee)
+{
+	struct UI_EmployeeData retEmployee;
+	
+	strcpy(retEmployee.name, employee.name);
+	strcpy(retEmployee.id, employee.id);
+	strcpy(retEmployee.position, employee.position);
+	strcpy(retEmployee.joiningDate, employee.joiningDate);
+	strcpy(retEmployee.status, employee.status);
+	strcpy(retEmployee.resigningDate, employee.resigningDate);
+	strcpy(retEmployee.salary, employee.salary);
+	strcpy(retEmployee.address, employee.address);
+	strcpy(retEmployee.phone, employee.phone);
+	strcpy(retEmployee.email, employee.email);
+	strcpy(retEmployee.description, employee.description);
+	
+	return retEmployee;
+}
+
 /*
 	*public functions
 	*used by any file that declares file_handle.h as header
@@ -38,40 +58,30 @@ int File_Append(struct EmployeeData employee)
 {
 	FILE *file;
 	
-	file = fopen("records.bin", "ab");
-	
-	if(file == NULL)
-	{
-		return 0;
-	}
-	else
+	if(file = fopen("records.bin", "ab"))
 	{
 		fwrite(&employee, sizeof(employee), 1, file);
 		fclose(file);
 		
 		return 1;
 	}
+	
+	return 0;
 }
 
 int File_ReadAll()
 {
-	int employeeNum = 0;//used to count number of employees
+	int employeeNum = 0;
 	
 	struct EmployeeData employee;
 	
 	FILE *file;
 	
-	file = fopen("records.bin", "rb");
-	
-	if(file == NULL)
-	{
-		return 2;
-	}
-	else
+	if(file = fopen("records.bin", "rb"))
 	{
 		while(fread(&employee, sizeof(employee), 1, file))
 		{
-			if(!UI_Display(employee, ++employeeNum))
+			if(!UI_Display(ToUIEmployeeData(employee), ++employeeNum))
 			{
 				fclose(file);
 				return 3;
@@ -80,6 +90,8 @@ int File_ReadAll()
 		
 		return 1;
 	}
+	
+	return 0;
 }
 
 int File_ReadOne(char employeeId[])
@@ -88,33 +100,27 @@ int File_ReadOne(char employeeId[])
 	
 	FILE *file;
 	
-	file = fopen("records.bin", "rb");
-	
-	if(file == NULL)
+	if(file = fopen("records.bin", "rb"))
 	{
-		return 2; 
-	}
-	else
-	{			
 		while(fread(&employee, sizeof(employee), 1, file))
 		{
 			if(IsEqualStr(employee.id, employeeId))
 			{
 				fclose(file);
 					
-				if(UI_Display(employee, -1))
+				if(UI_Display(ToUIEmployeeData(employee), -1))
 				{
-					break;
+					return 1;
 				}
 				else
 				{
-					return 3;
+					return 0;
 				}
 			}
-		}
-		
-		return 1;
+		} 
 	}
+	
+	return 0;
 }
 
 int File_ExistRecord(char employeeId[])
@@ -123,9 +129,7 @@ int File_ExistRecord(char employeeId[])
 	
 	FILE *file;
 	
-	file = fopen("records.bin", "rb");
-	
-	if(file != NULL)
+	if(file = fopen("records.bin", "rb"))
 	{
 		while(fread(&employee, sizeof(employee), 1, file))
 		{
@@ -145,13 +149,7 @@ int File_Update(char employeeId[], struct EmployeeData argEmployee)
 	
 	FILE *file;
 	
-	file = fopen("records.bin", "rb+");
-	
-	if(file == NULL)
-	{
-		return 0;
-	}
-	else
+	if(file = fopen("records.bin", "rb+"))
 	{
 		while(fread(&employee, sizeof(employee), 1, file))
 		{
@@ -196,9 +194,24 @@ int File_Update(char employeeId[], struct EmployeeData argEmployee)
 			}
 		}
 	}
+	
+	return 0;
 }
 
-int File_delete(struct EmployeeData employee)
+int File_Delete(char employeeId[])
 {
 	
+}
+
+int File_ExistFile(char fileName[])
+{
+	FILE *file;
+	
+	if(file = fopen(fileName, "r"))
+	{
+		fclose(file);
+		return 1;
+	}
+	
+	return 0;
 }

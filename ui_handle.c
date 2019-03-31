@@ -5,7 +5,8 @@
 #include<conio.h>
 #include<time.h>
 
-#include "ui_handle.h"//also declares file_handle.h as header in itself
+#include "ui_handle.h"
+#include "file_handle.h"
 
 /*
 	*private functions
@@ -135,7 +136,7 @@ int IsValidDate(char dateStr[])
 		return 0;
 	}
 	
-	//check for non-digit char
+	//checks for non-digit char
 	int i;
 	for(i = 0; i < 10; i++)
 	{
@@ -148,7 +149,7 @@ int IsValidDate(char dateStr[])
 		}
 	}
 	
-	//split the argument dateStr into day, month and year and convert to equivalent integer
+	//splits the argument dateStr into day, month and year and convert to equivalent integer
 	int day = (ToInt(dateStr[0]) * 10) + ToInt(dateStr[1]);
 	int month = (ToInt(dateStr[3]) * 10) + ToInt(dateStr[4]);
 	int year = (ToInt(dateStr[6]) * 1000) 
@@ -156,7 +157,7 @@ int IsValidDate(char dateStr[])
 			+ (ToInt(dateStr[8]) * 10) 
 			+ ToInt(dateStr[9]);
 			
-	//get current year
+	//gets current year
 	char currentYearStr[5];
 	time_t timer;
 	struct tm* time_info;
@@ -168,7 +169,7 @@ int IsValidDate(char dateStr[])
 					+ (ToInt(currentYearStr[2]) * 10) 
 					+ ToInt(currentYearStr[3]);
 
-	//check for other invalid cases
+	//checks for other invalid cases
 	if(year > currentYear || month > 12 || month < 1 || day > 31 || day < 1)
 	{
 		return 0;
@@ -214,25 +215,28 @@ void UI_ShowRecord()
 {
 	system("cls");
 	
-	int result = File_ReadAll();
+	int readSuccess = File_ReadAll();
 	
-	if(result == 1)
+	if(File_ExistFile("records.bin"))
 	{
-		printf("\nYou have reached the  end of data. Press any key to go back to main menu.");		
-		getch();
+		if(File_ReadAll())
+		{
+			printf("\nYou have reached the  end of data. Press any key to go back to main menu.");		
+			getch();
+		}
 	}
-	else if(result == 2)
+	else
 	{
 		UI_ShowErrorMsg("No record found.");
 	}
-	//else if result = 3, 
-	//then, user wants to return to the main menu directly
-	//and no action needs to be taken
 }
 
 void UI_AddRecord()
 {	
 	struct EmployeeData employee;
+	
+	char userInput;
+	
 	int continueAdding = 1;
 	
 	while(continueAdding)
@@ -240,7 +244,7 @@ void UI_AddRecord()
 		system("cls");
 		
 		printf("Enter the employee information:\n\n");
-		printf("\tName: ");
+		printf("\tName: ");		
 		if(!ReadStr(employee.name)) 
 		{
 			break;
@@ -248,7 +252,7 @@ void UI_AddRecord()
 		
 		while(continueAdding)
 		{
-			printf("\tID: ");
+			printf("\tID: ");	
 			if(ReadStr(employee.id))
 			{
 				if(File_ExistRecord(employee.id))
@@ -268,8 +272,7 @@ void UI_AddRecord()
 		
 		if(continueAdding)
 		{
-			printf("\tPosition: ");
-			
+			printf("\tPosition: ");			
 			if(!ReadStr(employee.position))
 			{
 				break;
@@ -278,12 +281,8 @@ void UI_AddRecord()
 		
 		while(continueAdding)
 		{
-			printf("\tJoining date(dd/mm/yyyy): ");
-			if(!ReadStr(employee.joiningDate))
-			{
-				continueAdding = 0;
-			}
-			else
+			printf("\tJoining date(dd/mm/yyyy): ");		
+			if(ReadStr(employee.joiningDate))
 			{
 				if(IsValidDate(employee.joiningDate))
 				{
@@ -294,31 +293,27 @@ void UI_AddRecord()
 					UI_ShowErrorMsg("The date is not valid. Please try again");
 				}
 			}
-		}
-				
-		while(continueAdding)
-		{
-			char input;
-				
-			printf("\tChoose status:\n");
-			printf("\t\t1 -> Current Employee\n");
-			printf("\t\t2 -> Previous Employee\n");
-				
-			if(!ReadChar(&input))
+			else
 			{
 				continueAdding = 0;
 			}
-			else
+		}
+			
+		while(continueAdding)
+		{			
+			printf("\tChoose status:\n");
+			printf("\t\t1 -> Current Employee\n");
+			printf("\t\t2 -> Previous Employee\n");			
+			if(ReadChar(&userInput))
 			{
-				if(input == '1')
+				if(userInput == '1')
 				{
 					strcpy(employee.status, "Current employee");			
 					strcpy(employee.resigningDate, "N/A");				
-					printf("\tStatus: Current employee\n");
-					
+					printf("\tStatus: Current employee\n");			
 					break;
 				}
-				else if(input == '2')
+				else if(userInput == '2')
 				{
 					strcpy(employee.status, "Previous employee");
 					printf("\tStatus: Previous employee\n");
@@ -326,11 +321,7 @@ void UI_AddRecord()
 					while(continueAdding)
 					{
 						printf("\tResgining date(dd/mm/yyyy): ");
-						if(!ReadStr(employee.resigningDate))
-						{
-							continueAdding = 0;
-						}
-						else
+						if(ReadStr(employee.resigningDate))
 						{
 							if(IsValidDate(employee.resigningDate))
 							{
@@ -341,6 +332,10 @@ void UI_AddRecord()
 								UI_ShowErrorMsg("The date is not valid. Please try again.");
 							}
 						}
+						else
+						{
+							continueAdding = 0;
+						}
 					}
 					
 					break;
@@ -348,18 +343,18 @@ void UI_AddRecord()
 				else
 				{
 					UI_ShowErrorMsg("Invalid input. Please try again.");
-				}
+				}			
+			}
+			else
+			{
+				continueAdding = 0;
 			}			
 		}
 		
 		while(continueAdding)
 		{
-			printf("\tSalary ($): ");
-			if(!ReadStr(employee.salary)) 
-			{
-				continueAdding = 0;
-			}
-			else
+			printf("\tSalary ($): ");	
+			if(ReadStr(employee.salary)) 
 			{
 				if(IsDouble(employee.salary))
 				{
@@ -370,11 +365,16 @@ void UI_AddRecord()
 					UI_ShowErrorMsg("Invalid salary. Please try again.");
 				}
 			}
+			else
+			{
+				continueAdding = 0;
+			}
 		}
 		
 		if(continueAdding)
 		{
 			int confirmed = UI_UserConfirmed("save_record");
+			
 			if(confirmed)
 			{
 				if(File_Append(employee))
@@ -392,7 +392,6 @@ void UI_AddRecord()
 			}
 			else
 			{
-
 				continueAdding = 0;
 			}
 		}
@@ -413,194 +412,178 @@ void UI_AddRecord()
 
 void UI_EditRecord()
 {
+	system("cls");
+	
 	struct EmployeeData employee;
 	
 	char employeeId[1001];
+	char userInput;
 	
 	int continueEdit = 1;
 	int allInfoCollected = 0;
 	
-	system("cls");
-	
 	while(continueEdit)
 	{	
-		printf("Enter the ID of the employee whose record you want to change: ");
+		printf("Enter the ID of the employee whose record you want to edit: ");
 		
 		if(ReadStr(employeeId))
 		{
-			if(File_ExistRecord(employeeId))
-			{
-				int result = File_ReadOne(employeeId);
-				
-				if(result == 1)
+			if(File_ExistRecord(employeeId) && File_ReadOne(employeeId))
+			{				
+				if(UI_UserConfirmed("edit_record"))
 				{
-					if(UI_UserConfirmed("edit_record"))
+					printf("Enter new information for this employee: \n");
+					printf("(Hint: type [same] id you do not want to change a field)\n");
+					printf("\tName: ");	
+					if(!ReadStr(employee.name)) 
 					{
-						printf("Enter new information for this employee: \n");
-						printf("(Hint: type [same] id you do not want to change a field)\n");
-						printf("\tName: ");	
-						if(!ReadStr(employee.name)) 
-						{
-							break;
-						}
+						break;
+					}
 							
-						while(continueEdit)
+					while(continueEdit)
+					{
+						printf("\tEmployee ID: ");
+						if(ReadStr(employee.id))
 						{
-							printf("\tEmployee ID: ");
-							if(ReadStr(employee.id))
+							if(!IsEqualStr(employee.id, "same") && File_ExistRecord(employee.id))
 							{
-								if(!IsEqualStr(employee.id, "same") && File_ExistRecord(employee.id))
-								{
-									UI_ShowErrorMsg("The ID already belongs to another employee. Please provide an unique ID.");
-								}
-								else
-								{
-									break;
-								}
+								UI_ShowErrorMsg("The ID already belongs to another employee. Please provide an unique ID.");
 							}
 							else
 							{
-								continueEdit = 0;
+								break;
 							}
 						}
-							
-						printf("\tPosition: ");
-						if(!ReadStr(employee.position))
+						else
 						{
 							continueEdit = 0;
 						}
+					}
 							
-						while(continueEdit)
+					printf("\tPosition: ");
+					if(!ReadStr(employee.position))
+					{
+						continueEdit = 0;
+					}
+							
+					while(continueEdit)
+					{
+						printf("\tJoining date(dd/mm/yyyy): ");
+						if(ReadStr(employee.joiningDate))
 						{
-							printf("\tJoining date(dd/mm/yyyy): ");
-							if(!ReadStr(employee.joiningDate))
+							if(IsEqualStr(employee.joiningDate, "same")|| IsValidDate(employee.joiningDate))
 							{
-								continueEdit = 0;
+								break;
 							}
 							else
 							{
-								if(IsEqualStr(employee.joiningDate, "same")|| IsValidDate(employee.joiningDate))
-								{
-									break;
-								}
-								else
-								{
-									UI_ShowErrorMsg("The date is not valid. Please try again.");
-								}
+								UI_ShowErrorMsg("The date is not valid. Please try again.");
 							}
 						}
-								
-						while(continueEdit)
+						else
 						{
-							char input;
-							
-							printf("\tChoose status:\n");
-							printf("\t\t1 -> Current Employee\n");
-							printf("\t\t2 -> Previous Employee\n");
-									
-							if(!ReadChar(&input))
+							continueEdit = 0;
+						}
+					}
+								
+					while(continueEdit)
+					{	
+						printf("\tChoose status:\n");
+						printf("\t\t1 -> Current Employee\n");
+						printf("\t\t2 -> Previous Employee\n");									
+						if(ReadChar(&userInput))
+						{
+							if(userInput == '1')
 							{
-								continueEdit = 0;
+								strcpy(employee.status, "Current employee");
+								strcpy(employee.resigningDate, "N/A");
+								printf("\tStatus: Current employee\n");										
+								break;
 							}
-							else
+							else if(userInput == '2')
 							{
-								if(input == '1')
-								{
-									strcpy(employee.status, "Current employee");
-									strcpy(employee.resigningDate, "N/A");
-									printf("\tStatus: Current employee\n");
+								strcpy(employee.status, "Previous employee");
+								printf("\tStatus: Previous employee\n");
 											
-									break;
-								}
-								else if(input == '2')
+								while(continueEdit)
 								{
-									strcpy(employee.status, "Previous employee");
-									printf("\tStatus: Previous employee\n");
-											
-									while(continueEdit)
+									printf("\tResgining date(dd/mm/yyyy): ");
+									if(ReadStr(employee.resigningDate))
 									{
-										printf("\tResgining date(dd/mm/yyyy): ");
-										if(!ReadStr(employee.resigningDate))
+										if(IsEqualStr(employee.resigningDate, "same")|| IsValidDate(employee.resigningDate))
 										{
-											continueEdit = 0;
+											break;
 										}
 										else
 										{
-											if(IsEqualStr(employee.resigningDate, "same")|| IsValidDate(employee.resigningDate))
-											{
-												break;
-											}
-											else
-											{
-												UI_ShowErrorMsg("The date is not valid. Please try again.");
-											}
+											UI_ShowErrorMsg("The date is not valid. Please try again.");
 										}
 									}
+									else
+									{
+										continueEdit = 0;
+									}
+								}
 											
-									break;
-								}
-								else
-								{
-									UI_ShowErrorMsg("Invalid input. Please try again.");
-								}
-							}			
-						}
-						
-						while(continueEdit)
-						{
-							printf("\tSalary ($): ");
-							if(!ReadStr(employee.salary)) 
-							{
-								continueEdit = 0;
+								break;
 							}
 							else
 							{
-								if(IsEqualStr(employee.salary, "same") || IsDouble(employee.salary))
-								{
-									allInfoCollected = 1;
-									break;
-								}
-								else
-								{
-									UI_ShowErrorMsg("Invalid salary. Please try again.");
-								}
+								UI_ShowErrorMsg("Invalid input. Please try again.");
 							}
 						}
-						
-						if(allInfoCollected)
+						else
 						{
-							if(File_Update(employeeId, employee))
+							continueEdit = 0;
+						}			
+					}
+						
+					while(continueEdit)
+					{
+						printf("\tSalary ($): ");
+						if(ReadStr(employee.salary)) 
+						{
+							if(IsEqualStr(employee.salary, "same") || IsDouble(employee.salary))
 							{
-								UI_ShowSuccessMsg("The record has been successfully updated.");
+								allInfoCollected = 1;
+								break;
 							}
 							else
 							{
-								UI_ShowErrorMsg("Sorry, could not update the information.");
+								UI_ShowErrorMsg("Invalid salary. Please try again.");
 							}
 						}
+						else
+						{
+							continueEdit = 0;
+						}
 					}
-					else
+						
+					if(allInfoCollected)
 					{
-						printf("The employee information was not changed.\n\n");
+						if(File_Update(employeeId, employee))
+						{
+							UI_ShowSuccessMsg("The record has been successfully updated.");
+						}
+						else
+						{
+							UI_ShowErrorMsg("Sorry, could not update the information.");
+						}
 					}
-					
-					if(UI_UserConfirmed("edit_another_record"))
-					{
-						system("cls");
-					}
-					else
-					{
-						break;
-					}			
 				}
-				else if(result == 2)
+				else
 				{
-					UI_ShowErrorMsg("Sorry, could not find the file.");
+					printf("The employee information was not updated.\n\n");
+				}
+					
+				if(UI_UserConfirmed("edit_another_record"))
+				{
+					system("cls");
 				}
 				else
 				{
 					break;
-				}
+				}			
 			}
 			else
 			{
@@ -618,11 +601,57 @@ void UI_EditRecord()
 
 void UI_DeleteRecord()
 {
+	char employeeId[1001];
+	
+	int continueDelete = 1;
+	
 	system("cls");
 	
-	UI_ShowErrorMsg("Feature is currently not available. Press any key to go back.");
-	
-	getch();
+	while(continueDelete)
+	{	
+		printf("Enter the ID of the employee whose record you want to delete: ");
+		
+		if(ReadStr(employeeId))
+		{
+			if(File_ExistRecord(employeeId) && File_ReadOne(employeeId))
+			{				
+				if(UI_UserConfirmed("delete_record"))
+				{
+					if(File_Delete(employeeId))
+					{
+						UI_ShowSuccessMsg("The record is permanently deleted");
+					}
+					else
+					{
+						UI_ShowErrorMsg("Something went wrong. Could not delete the file");
+					}
+				}
+				else
+				{
+					printf("The employee information was not changed.\n\n");
+				}
+					
+				if(UI_UserConfirmed("delete_another_record"))
+				{
+					system("cls");
+				}
+				else
+				{
+					break;
+				}			
+			}
+			else
+			{
+				char message[1001] = "No employee found with ID ";
+				strcat(message, employeeId);
+				UI_ShowErrorMsg(message);
+			}
+		}
+		else
+		{
+			break;
+		}
+	}
 }
 
 int UI_UserConfirmed(char confirmFor[])
@@ -648,6 +677,14 @@ int UI_UserConfirmed(char confirmFor[])
 	else if(IsEqualStr(confirmFor, "edit_another_record"))
 	{	
 		strcpy(message, "Do you want to edit another record?\n");
+	}
+	else if(IsEqualStr(confirmFor, "delete_record"))
+	{
+		strcpy(message, "Do you want to delete this record permanently?\n");
+	}
+	else if(IsEqualStr(confirmFor, "delete_another_record"))
+	{
+		strcpy(message, "Do you want to delete another record?\n");
 	}
 
 	while(1)
@@ -678,7 +715,7 @@ int UI_UserConfirmed(char confirmFor[])
 	}
 }
 
-int UI_Display(struct EmployeeData employee, int employeeNum)
+int UI_Display(struct UI_EmployeeData employee, int employeeNum)
 {
 	//we want to show no more than 3 employee data at a time
 	//so we will clear the screen after every 3 employee data is shown

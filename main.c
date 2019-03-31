@@ -24,19 +24,14 @@ int main()
 				UI_DeleteRecord();
 				break;
 			case '5':
-				if(UI_UserConfirmed("exit"))
-				{
-					exitProgram = 1;
-				}
+				if(UI_UserConfirmed("exit")) exitProgram = 1;
 				break;
 			default:
 				UI_ShowErrorMsg("Invalid Input. Please try again.");
 				break;			
-		}//end of switch
-		
-	}//end of while 
+		}		
+	}
 	
-	//show exit message
 	UI_ShowSuccessMsg("The program has been successfully closed. Thank you for using this program.");
 	
 	return 0;
