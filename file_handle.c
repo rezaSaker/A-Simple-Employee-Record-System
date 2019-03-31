@@ -61,8 +61,8 @@ int File_Append(struct EmployeeData employee)
 	if(file = fopen("records.bin", "ab"))
 	{
 		fwrite(&employee, sizeof(employee), 1, file);
-		fclose(file);
 		
+		fclose(file);	
 		return 1;
 	}
 	
@@ -84,10 +84,11 @@ int File_ReadAll()
 			if(!UI_Display(ToUIEmployeeData(employee), ++employeeNum))
 			{
 				fclose(file);
-				return 3;
+				return 0;
 			}
 		}
 		
+		fclose(file);
 		return 1;
 	}
 	
@@ -117,7 +118,8 @@ int File_ReadOne(char employeeId[])
 					return 0;
 				}
 			}
-		} 
+		}
+		fclose(file);
 	}
 	
 	return 0;
@@ -135,9 +137,11 @@ int File_ExistRecord(char employeeId[])
 		{
 			if(IsEqualStr(employeeId, employee.id))
 			{
+				fclose(file);
 				return 1;
 			}
 		}
+		fclose(file);
 	}
 	
 	return 0;
@@ -193,14 +197,38 @@ int File_Update(char employeeId[], struct EmployeeData argEmployee)
 				return 1;
 			}
 		}
+		fclose(file);
 	}
 	
 	return 0;
 }
 
-int File_Delete(char employeeId[])
+int File_DeleteRecord(char employeeId[])
 {
+	FILE *file;
+	FILE *temp_file;
 	
+	struct EmployeeData employee;
+	
+	file = fopen("records.bin", "rb");
+	temp_file = fopen("temp_records.bin", "wb+");
+	if(file != NULL && temp_file != NULL)
+	{
+		while(fread(&employee, sizeof(employee), 1, file))
+		{
+			if(!IsEqualStr(employee.id, employeeId))
+			{
+				fwrite(&employee, sizeof(employee), 1, temp_file);
+			}
+		}
+		fclose(file);
+		fclose(temp_file);
+		remove("records.bin");
+		rename("temp_records.bin", "records.bin");
+		return 1;
+	}
+	
+	return 0;
 }
 
 int File_ExistFile(char fileName[])

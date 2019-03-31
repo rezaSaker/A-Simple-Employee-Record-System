@@ -215,8 +215,6 @@ void UI_ShowRecord()
 {
 	system("cls");
 	
-	int readSuccess = File_ReadAll();
-	
 	if(File_ExistFile("records.bin"))
 	{
 		if(File_ReadAll())
@@ -617,7 +615,7 @@ void UI_DeleteRecord()
 			{				
 				if(UI_UserConfirmed("delete_record"))
 				{
-					if(File_Delete(employeeId))
+					if(File_DeleteRecord(employeeId))
 					{
 						UI_ShowSuccessMsg("The record is permanently deleted");
 					}

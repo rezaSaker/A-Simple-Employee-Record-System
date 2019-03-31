@@ -22,7 +22,7 @@ int File_Append(struct EmployeeData employee);
 int File_ReadAll();
 int File_ReadOne(char employeeId[]);
 int File_Update(char employeeId[], struct EmployeeData argEmployee);
-int File_Delete(char employeeId[]);
+int File_DeleteRecord(char employeeId[]);
 int File_ExistRecord(char employeeId[]);
 int File_ExistFile(char fileName[]);
 #endif
