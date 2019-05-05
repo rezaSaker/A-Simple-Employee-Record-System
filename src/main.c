@@ -1,5 +1,4 @@
-#include<stdio.h>
-#include "ui_handle.h"
+#include "../include/ui_handle.h"
 
 int main()
 {

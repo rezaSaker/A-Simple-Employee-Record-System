@@ -3,8 +3,8 @@
 #include<string.h>
 #include<conio.h>
 
-#include "ui_handle.h"
-#include "file_handle.h"
+#include "../include/ui_handle.h"
+#include "../include/file_handle.h"
 
 /*
 	*private functions
