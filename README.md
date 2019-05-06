@@ -1,7 +1,7 @@
 # Welcome to ERS
 ___
 
-ERS is a simple console application to manage employee records. It is developed based on C language. Even though the the application is pretty simple, it is useful and furthermore it's attention to detail makes it a app of beauty.
+ERS is a simple console application to manage employee records. It is developed based on C language. Even though the the application is pretty simple, it is useful. Furthermore its attention to detail makes it a app of beauty.
 ___
 
 ## Features
