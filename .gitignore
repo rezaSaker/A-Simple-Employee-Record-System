@@ -2,3 +2,4 @@
 test.c 
 *.exe 
 records.bin 
+src/*.o
